@@ -8,6 +8,10 @@
 const int volClockwisePin = 4;
 const int volCounterClockwisePin = 5;
 
+// I2C Pins
+const int I2C_SDA = 21;
+const int I2C_SCL = 22;
+
 // I2C control of the amp
 const int AMP_CONTROL_W_ADDR= 0x98;  // Write address
 const int AMP_CONTROL_R_ADDR= 0x99;  // Read address
@@ -25,7 +29,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(volClockwisePin), volIncreasingISR, RISING);
   attachInterrupt(digitalPinToInterrupt(volCounterClockwisePin), volDecreasingISR, RISING);
 
-  Wire.begin(); // Set up I2C
+  Wire.begin(I2C_SDA, I2C_SCL); // Set up I2C and pins
   setVolumeTracking(); // SPK_OUTA volume controls the volume for both channels.
   Serial.begin(115200);
 }
@@ -36,9 +40,11 @@ void loop() {
   if (direction == VOL_UP) {
     changeVolume(VOL_INC);
     direction = 0;
+    Serial.println("VOL++");
   } else if (direction == VOL_DOWN ){
     changeVolume(-VOL_INC);
     direction = 0;
+    Serial.println("VOL--");
   }
 
 }
@@ -66,6 +72,8 @@ void setVolumeTracking() {
 /* Change the volume by the specifed increment
 */
 void changeVolume(int8_t increment) {
+
+  Serial.print("changeVolume("); Serial.print(increment); Serial.println(")");
   // Set the page to 0
   setPage(0x00);
 
@@ -76,7 +84,8 @@ void changeVolume(int8_t increment) {
 
   // Now read the current volume
   Wire.requestFrom(AMP_CONTROL_R_ADDR, 1);
-  byte currentVolume = Wire.read();
+  byte currentVolume = 0;
+  currentVolume = Wire.read();
 
   //DEBUG
   Serial.print("Current Volume:");
@@ -105,6 +114,8 @@ void changeVolume(int8_t increment) {
 }
 
 void setPage(byte page) {
+Serial.print("setPage(");Serial.print(page); Serial.println(")");
+  
   Wire.beginTransmission(AMP_CONTROL_W_ADDR);
   Wire.write(AMP_R0_ADDR); //Write to register 0 to select the register page
   Wire.write(page);  // Select page

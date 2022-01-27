@@ -14,13 +14,13 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-Text Label 7350 4800 2    50   ~ 0
+Text Label 7250 4800 2    50   ~ 0
 LRCLK
-Text Label 7300 4700 2    50   ~ 0
+Text Label 7200 4400 2    50   ~ 0
 BCLK
-Text Label 7300 4600 2    50   ~ 0
+Text Label 7200 5000 2    50   ~ 0
 DATA
-Text Label 7350 4500 2    50   ~ 0
+Text Label 7200 4600 2    50   ~ 0
 MCLK
 $Comp
 L Connector_Generic:Conn_01x05 J1
@@ -872,11 +872,11 @@ DATA
 Text Label 5850 6900 1    50   ~ 0
 MCLK
 Entry Wire Line
-	6750 4400 6850 4500
+	6750 4300 6850 4400
 Entry Wire Line
 	6750 4500 6850 4600
 Entry Wire Line
-	6750 4600 6850 4700
+	6750 4900 6850 5000
 Entry Wire Line
 	6750 4700 6850 4800
 Wire Notes Line
@@ -897,26 +897,6 @@ $EndComp
 Wire Notes Line
 	10000 4150 11000 4150
 Wire Wire Line
-	6850 4500 7750 4500
-Wire Wire Line
-	7750 4500 7750 4400
-Wire Wire Line
-	7750 4400 8100 4400
-Wire Wire Line
-	6850 4600 8100 4600
-Wire Wire Line
-	6850 4700 7900 4700
-Wire Wire Line
-	7900 4700 7900 4800
-Wire Wire Line
-	7900 4800 8100 4800
-Wire Wire Line
-	6850 4800 7750 4800
-Wire Wire Line
-	7750 4800 7750 5000
-Wire Wire Line
-	7750 5000 8100 5000
-Wire Wire Line
 	8800 1900 8800 2700
 Wire Wire Line
 	8100 4500 7950 4500
@@ -927,31 +907,31 @@ Wire Wire Line
 $Comp
 L Device:R_Small R5
 U 1 1 621C4F93
-P 7500 5300
-F 0 "R5" H 7559 5346 50  0000 L CNN
-F 1 "10K" H 7559 5255 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 7500 5300 50  0001 C CNN
-F 3 "~" H 7500 5300 50  0001 C CNN
-	1    7500 5300
+P 7500 5450
+F 0 "R5" H 7559 5496 50  0000 L CNN
+F 1 "10K" H 7559 5405 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 7500 5450 50  0001 C CNN
+F 3 "~" H 7500 5450 50  0001 C CNN
+	1    7500 5450
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:+3V3 #PWR015
 U 1 1 621C5878
-P 7500 5200
-F 0 "#PWR015" H 7500 5050 50  0001 C CNN
-F 1 "+3V3" H 7515 5373 50  0000 C CNN
-F 2 "" H 7500 5200 50  0001 C CNN
-F 3 "" H 7500 5200 50  0001 C CNN
-	1    7500 5200
+P 7500 5350
+F 0 "#PWR015" H 7500 5200 50  0001 C CNN
+F 1 "+3V3" H 7515 5523 50  0000 C CNN
+F 2 "" H 7500 5350 50  0001 C CNN
+F 3 "" H 7500 5350 50  0001 C CNN
+	1    7500 5350
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	7500 5400 7500 5500
+	7500 5550 7500 5650
 Wire Wire Line
-	7500 5500 8000 5500
+	7500 5650 8000 5650
 Wire Wire Line
-	8000 5500 8000 5100
+	8000 5650 8000 5100
 Wire Wire Line
 	8000 4700 8100 4700
 Wire Wire Line
@@ -987,25 +967,7 @@ F 3 "" H 8600 3950 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	9100 4400 9850 4400
-Wire Wire Line
-	9850 4400 9850 4500
-Wire Wire Line
-	9850 4500 10500 4500
-Wire Wire Line
-	9100 4600 10500 4600
-Wire Wire Line
-	10500 4700 9850 4700
-Wire Wire Line
-	9850 4700 9850 4800
-Wire Wire Line
-	9850 4800 9100 4800
-Wire Wire Line
-	9100 5000 9950 5000
-Wire Wire Line
-	9950 5000 9950 4800
-Wire Wire Line
-	9950 4800 10500 4800
+	9100 5000 9900 5000
 Wire Wire Line
 	9400 1800 9400 2000
 Wire Wire Line
@@ -1159,19 +1121,13 @@ Wire Wire Line
 	10400 4350 10500 4350
 Wire Wire Line
 	10500 4350 10500 4400
-Wire Bus Line
-	3700 6550 6750 6550
-Wire Bus Line
-	3700 1250 3700 6550
-Wire Bus Line
-	6750 1250 6750 6550
-Text Label 10050 4500 0    50   ~ 0
+Text Label 10100 4500 0    50   ~ 0
 MCLK_OUT
-Text Label 10050 4600 0    50   ~ 0
+Text Label 10100 4700 0    50   ~ 0
 DATA_OUT
-Text Label 10050 4700 0    50   ~ 0
+Text Label 10100 4600 0    50   ~ 0
 BCLK_OUT
-Text Label 10050 4800 0    50   ~ 0
+Text Label 10100 4800 0    50   ~ 0
 LRCLK_OUT
 $Comp
 L Connector:TestPoint TP1
@@ -1195,4 +1151,36 @@ F 3 "" H 1400 7450 50  0001 C CNN
 	1    1400 7450
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	6850 4800 8100 4800
+Wire Wire Line
+	8100 5000 6850 5000
+Wire Wire Line
+	8100 4600 6850 4600
+Wire Wire Line
+	8100 4400 6850 4400
+Wire Wire Line
+	9100 4400 9950 4400
+Wire Wire Line
+	9950 4400 9950 4600
+Wire Wire Line
+	9950 4600 10500 4600
+Wire Wire Line
+	9100 4600 9750 4600
+Wire Wire Line
+	9750 4600 9750 4500
+Wire Wire Line
+	9750 4500 10500 4500
+Wire Wire Line
+	9100 4800 10500 4800
+Wire Wire Line
+	9900 5000 9900 4700
+Wire Wire Line
+	9900 4700 10500 4700
+Wire Bus Line
+	3700 6550 6750 6550
+Wire Bus Line
+	3700 1250 3700 6550
+Wire Bus Line
+	6750 1250 6750 6550
 $EndSCHEMATC

@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "i2s-multiplexer")(type "Legacy")(uri "${KIPRJMOD}/i2s-muliplexer.lib")(options "")(descr ""))
+)

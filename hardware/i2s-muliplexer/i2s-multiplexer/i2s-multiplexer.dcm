@@ -1,9 +1,0 @@
-EESchema-DOCLIB  Version 2.0
-#
-$CMP 74HC126
-D Quad buffer 3-State outputs
-K Buffer Tri-State
-F http://www.ti.com/lit/gpn/sn74LS95
-$ENDCMP
-#
-#End Doc Library

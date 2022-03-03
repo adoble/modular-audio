@@ -1,0 +1,19 @@
+@startuml
+skinparam actorStyle awesome
+left to right direction
+
+:User: --> (Select internet radio)
+
+
+rectangle Internet-Radio{
+    usecase "Change internet radio station" as UC0001
+    usecase "Select internet radio station" as UC0002
+
+}
+
+:User: --> UC0001
+:User: --> UC0002
+
+
+
+@enduml

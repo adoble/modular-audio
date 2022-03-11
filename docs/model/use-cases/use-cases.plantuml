@@ -2,17 +2,69 @@
 skinparam actorStyle awesome
 left to right direction
 
-:User: --> (Select internet radio)
 
 
-rectangle Internet-Radio{
-    usecase "Change internet radio station" as UC0001
-    usecase "Select internet radio station" as UC0002
+
+usecase (Select CD) as sel_cd
+usecase (Select Internet Radio) as sel_ir
+usecase (Select DVD) as sel_dvd
+usecase (Select DAB radio) as sel_dab
+usecase (Select source) as sel_source
+usecase (Adjust volume) as adj_vol
+
+usecase (Select radio station)  as sel_radio_station
+usecase (Change radio station)  as chg_radio_station
+usecase (Next track) as next_track
+
+:user: --> (adj_vol)
+:user: --> (sel_source)
+:user: --> (sel_radio_station)
+:user: --> (chg_radio_station)
+:user: --> (next_track)
+
+
+
+' Select source
+(sel_source)  <|-- (Select CD)  
+(sel_source)  <|-- (Select Internet Radio) 
+(sel_source)  <|-- (Select DVD)
+(sel_source)  <|-- (Select DAB radio) 
+
+
+
+
+
+rectangle Internet-Radio {
+    usecase "Select internet radio station" as select_ir_station
+    usecase "Change internet radio station" as change_ir_station
+    (sel_radio_station) <|-- (select_ir_station)
+    (chg_radio_station) <|-- (change_ir_station)
+    
+}
+
+package DAB-Radio {
+    usecase "Select DAB radio station" as select_dab_station
+    usecase "Change DAB radio station" as change_dab_station
+    (sel_radio_station) <|-- (select_dab_station)
+    (chg_radio_station) <|-- (change_dab_station)    
+}
+
+package DVD { 
+
+}
+package CD {
+    
+}
+
+package Media-Centre {
 
 }
 
-:User: --> UC0001
-:User: --> UC0002
+
+
+
+
+
 
 
 

@@ -915,8 +915,8 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 33c3ef45-1b92-46af-9ebd-4f0952e671a6)
   )
-  (text "As inside only need low current  >= 1mA\nR = 3.3V - 2V / 1mA = 1 300 Ohm => 1K Ohm\n\n"
-    (at 100.33 90.17 0)
+  (text "As inside only need low luminosity => low current  >= 1mA\nR = 3.3V - 2V / 1mA = 1 300 Ohm => 1K Ohm\n\n"
+    (at 96.52 90.17 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 47be5e26-b45a-423b-914f-e6234c51622a)
   )
@@ -925,7 +925,7 @@
     (uuid 4fc5d252-6a30-4191-806e-08bb920b49e9)
   )
   (text "A red LED typically drops around 1.7 to 2.0 volts.\n"
-    (at 100.33 83.82 0)
+    (at 96.52 83.82 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 8e00b88b-9f49-4f8b-b5c6-d8b894b971a0)
   )
@@ -933,12 +933,12 @@
     (effects (font (size 1.27 1.27) (thickness 0.254) bold) (justify right bottom))
     (uuid ae332483-4b0d-4e9d-a70d-76dbbe8c8fd5)
   )
-  (text "As inside only need low current >= 1mA\nR = 5V - 3.3V / 1mA = 1 700 Ohm => 1K Ohm\n\n"
-    (at 101.6 147.32 0)
+  (text "As inside only need low luminosity => low current >= 1mA\nR = 5V - 3.3V / 1mA = 1 700 Ohm => 1K Ohm\n\n"
+    (at 96.52 147.32 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid b8c7be91-0083-4562-a4db-ccf2bbb94b3a)
   )
-  (text "A blue LED may drop around 3 to 3.3 volts." (at 101.6 140.97 0)
+  (text "A blue LED may drop around 3 to 3.3 volts." (at 96.52 140.97 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid e278f847-a259-4593-ab87-dd6742319151)
   )

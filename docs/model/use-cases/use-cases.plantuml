@@ -2,71 +2,126 @@
 skinparam actorStyle awesome
 left to right direction
 
+actor "Amplifer User" as user
 
+rectangle Amplifier-Module {
+    ' Select source
+    package Select-Source {
+        usecase (Select CD) as sel_cd 
+        usecase (Select DVD) as sel_dvd
+        usecase (Select DAB radio) as sel_dab
+        usecase (Select source) as sel_source
+        usecase (Select source \n from touchscreen) as sel_source_touchscreen <<touchscreen>>
+        usecase (Select source \n from knob) as sel_source_knob <<physical>>
+        usecase (Display source control screen) as show_source_control_screen <<touchscreen>>
+        
+        (sel_source)  <.. (sel_dab) : << extends >>
+        (sel_source)  <.. (sel_cd) : << extends >>  
+        (sel_source)  <.. (sel_ir) : << extends >>
+        (sel_source)  <.. (sel_dvd) : << extends >>
 
-
-usecase (Select CD) as sel_cd
-usecase (Select Internet Radio) as sel_ir
-usecase (Select DVD) as sel_dvd
-usecase (Select DAB radio) as sel_dab
-usecase (Select source) as sel_source
-usecase (Adjust volume) as adj_vol
-
-usecase (Select radio station)  as sel_radio_station
-usecase (Change radio station)  as chg_radio_station
-usecase (Next track) as next_track
-
-:user: --> (adj_vol)
-:user: --> (sel_source)
-:user: --> (sel_radio_station)
-:user: --> (chg_radio_station)
-:user: --> (next_track)
-
-
-
-
-' Select source
-(sel_source)  <|-- (Select CD)  
-(sel_source)  <|-- (Select Internet Radio) 
-(sel_source)  <|-- (Select DVD)
-(sel_source)  <|-- (Select DAB radio) 
+        (sel_source) <|-- (sel_source_touchscreen)
+        (sel_source) <|-- (sel_source_knob)
+        (sel_source)  ..> (show_source_control_screen) : << includes >>
+        
+    }
 
 
 
 
-
-rectangle Internet-Radio {
-    usecase "Select internet radio station" as select_ir_station
-    usecase "Change internet radio station" as change_ir_station
-    (sel_radio_station) <|-- (select_ir_station)
-    (chg_radio_station) <|-- (change_ir_station)
     
+    usecase (Change radio station)  as chg_radio_station
+    :user: --> (sel_source)
+    :user: --> (chg_radio_station)
+
+
+
+    package Volume {
+        usecase (Adjust volume) as adj_vol
+
+        :user: --> (adj_vol)
+        usecase (Adjust volume \n with volume knob) as adj_vol_knob   <<physical>>
+        usecase (Adjust volume \n using touch screen) as adj_vol_touch <<touchscreen>>
+        (adj_vol) --> (adj_vol_knob)
+        (adj_vol) --> (adj_vol_touch)
+
+        usecase (Display volume level) as show_vol_level
+        (adj_vol) ..> (show_vol_level) : << includes >>
+    }
+
+
+
+    package Internet-Radio {
+        
+        usecase (Change internet radio station) as change_ir_station
+
+        
+        (chg_radio_station) <|-- (change_ir_station)   
+
+        usecase (Display internet radio \n station groups) as show_groups
+        usecase (Display internet radio \n stations in group) as show_stations
+
+        (change_ir_station) <.. (show_groups) : << includes >>
+        (change_ir_station) <.. (show_stations) : << includes >>
+
+        usecase (Load internet radion \n stations from web) as load_ir_stations
+
+        (show_groups) <.. load_ir_stations : << includes >>
+        (show_stations) <.. load_ir_stations : << includes >>
+        
+
+    }
+
+    package DAB-Radio {
+        usecase "Select DAB radio station" as select_dab_station
+        usecase "Change DAB radio station" as change_dab_station
+        (sel_radio_station) <|-- (select_dab_station)
+        (chg_radio_station) <|-- (change_dab_station)    
+    }
+
+
+    package CD/DVD {
+        usecase (Play track) as play_track
+        usecase (Pause Track) as pause_track
+        usecase (Stop playing) as stop_play
+        usecase (Change track) as chg_cd_track
+        usecase (Select Track) as sel_cd_track
+        usecase (Jump to next \n track) as jump_next_track
+        usecase (Jump to previous \n track) as jump_prev_track
+
+
+        :user: --> (chg_cd_track)
+        :user: --> (pause_track)
+        :user: --> (stop_play)
+        :user: --> (play_track)
+        (chg_cd_track) <|-- (sel_cd_track)
+        (chg_cd_track) <|-- (jump_next_track)
+        (chg_cd_track) <|-- (jump_prev_track)
+
+        usecase (Display CD track number) as show_cd_track_number
+        usecase (Display CD track title) as show_cd_track_title
+
+        (chg_cd_track) ..> show_cd_track_number : << includes >>
+        (chg_cd_track) ..> show_cd_track_title : << includes >>
+        
+        
+
+    }
+
+    package Media-Centre {
+
+    }
+
+
+
 }
 
-package DAB-Radio {
-    usecase "Select DAB radio station" as select_dab_station
-    usecase "Change DAB radio station" as change_dab_station
-    (sel_radio_station) <|-- (select_dab_station)
-    (chg_radio_station) <|-- (change_dab_station)    
-}
+newpage 
+actor "App User" as app_user
 
-package DVD { 
+rectangle App {
 
 }
-package CD {
-    
-}
-
-package Media-Centre {
-
-}
-
-
-
-
-
-
-
 
 
 @enduml

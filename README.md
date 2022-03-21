@@ -4,4 +4,4 @@ An D-class amplifier module that can select other S/PDIF sources. Control of the
 
 ## System Diagram
 
-![System Diagram](./docs/img/Modular-Amplifier.png)
+![System Diagram](./docs/img/Modular-Amplifier.png#gh-light-mode-only)

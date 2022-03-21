@@ -21,9 +21,9 @@ subgraph sources [Sources]
     aux{{Aux In}};
 end
 
-airlink["Airlink/Bluetooth <br> Module"] -- I2S --- i2sm
+airlink["Airlink/Bluetooth <br> /Internet Radio <br> Module"] -- I2S --- i2sm
 cd -- I2S  --- i2sm;
-dvd -- SPDIF --- spdif[SPDIF Module] -- I2S --- i2sm;
+dvd -- "S/PDIF" --- spdif["S/PDIF Module"] -- I2S --- i2sm;
 aux --- adc[Analog to Digital Converter] -- I2S --- i2sm;
 
 amp --- left((Left <br> Speaker)) 
@@ -62,7 +62,7 @@ sel_btns --- main_ctrl;
     smps --- reg_5v[5V Regulator];
     smps --- reg_3v3[3.3V Regulator];
     reg_5v --- pwr_5v{5V};
-    reg_3v3 --- pwr_3v3{3V};
+    reg_3v3 --- pwr_3v3{3.3V};
 
     Battery --- pwr_on_off(("Power <br> On/Off <br> Switch")) --- Relay; 
 

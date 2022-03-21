@@ -11,13 +11,19 @@ graph LR;
 
 main_ctrl["Main Controller"] --- i2sm[I2SMultiplexor];
 main_ctrl --- display_driver[Display Driver] --- Display;
-i2sm --- dsp["Digital Signal <br> Processor"] --- amp[Amplifier];
+main_ctrl --- dsp;
+i2sm -- I2S --- dsp["Digital Signal <br> Processor"] -- I2S --- amp[Amplifier];
+dsp -- I2S --- toslink_out_converter[TOSLINK Converter] --- toslink_out{{TOSLINK <br> Out}};
+
 style dsp stroke-dasharray: 5 5;
+style toslink_out_converter stroke-dasharray: 5 5;
+style toslink_out stroke-dasharray: 5 5;
 
 
 subgraph sources [Sources]
     cd{{CD}};
     dvd{{DVD}};
+    tos_link_in{{Toslink In}}
     aux{{Aux In}};
 end
 
@@ -25,9 +31,10 @@ airlink["Airlink/Bluetooth <br> /Internet Radio <br> Module"] -- I2S --- i2sm
 cd -- I2S  --- i2sm;
 dvd -- "S/PDIF" --- spdif["S/PDIF Module"] -- I2S --- i2sm;
 aux --- adc[Analog to Digital Converter] -- I2S --- i2sm;
+tos_link_in --- toslink_converter[TOSLINK Converter] --- i2sm; 
 
-amp --- left((Left <br> Speaker)) 
-amp --- right((Right <br> Speaker)) 
+amp --- left{{Left}} --- left_spk((Left <br> Speaker)) 
+amp --- right{{Right}} --- right_spk((Right <br> Speaker)) 
 
 
 subgraph rot_procs[Rotary Control <br> Processors]

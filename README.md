@@ -11,9 +11,9 @@ graph LR;
 
 main_ctrl["Main Controller"] --- i2sm[I2SMultiplexor];
 main_ctrl --- display_driver[Display Driver] --- Display;
-main_ctrl --- dsp;
+main_ctrl -- SPI --- dsp;
 i2sm -- I2S --- dsp["Digital Signal <br> Processor"] -- I2S --- amp[Amplifier];
-dsp -- I2S --- toslink_out_converter[TOSLINK Converter] --- toslink_out{{TOSLINK <br> Out}};
+dsp -- I2S --- toslink_out_converter[TOSLINK<br>Converter] -- "S/PDIF" --- toslink_out{{TOSLINK <br> Out}};
 
 style dsp stroke-dasharray: 5 5;
 style toslink_out_converter stroke-dasharray: 5 5;
@@ -30,8 +30,8 @@ end
 airlink["Airlink/Bluetooth <br> /Internet Radio <br> Module"] -- I2S --- i2sm
 cd -- I2S  --- i2sm;
 dvd -- "S/PDIF" --- spdif["S/PDIF Module"] -- I2S --- i2sm;
-aux --- adc[Analog to Digital Converter] -- I2S --- i2sm;
-tos_link_in --- toslink_converter[TOSLINK Converter] --- i2sm; 
+aux --- adc[Analog to <br>Digital Converter] -- I2S --- i2sm;
+tos_link_in -- "S/PDIF" --- toslink_converter[TOSLINK<br>Converter] -- I2S --- i2sm; 
 
 amp --- left{{Left}} --- left_spk((Left <br> Speaker)) 
 amp --- right{{Right}} --- right_spk((Right <br> Speaker)) 
@@ -53,8 +53,6 @@ end
 vol_knob --- vol_proc --- main_ctrl;
 sel_knob --- sel_proc --- main_ctrl;
 sel_btns --- main_ctrl;
-
-   
 ```
 
 ### Power
@@ -72,29 +70,22 @@ sel_btns --- main_ctrl;
     reg_3v3 --- pwr_3v3{3.3V};
 
     Battery --- pwr_on_off(("Power <br> On/Off <br> Switch")) --- Relay; 
-
-
-   
 ```
 
-### Key
+### Symbols used in the Diagrams
 
 ```mermaid
-   graph LR;
+graph LR;
 
-   subgraph Key 
-        transducer((Transducer)) ---  pwr_net{Power Net} --- module[Module] --- ext{{External}};
-   end 
+subgraph key[Key]
+    transducer((<small>Transducer<small>)) ---  pwr_net{<small>Power<br>Net<small>} --- module[<small>Module<small>] --- ext{{<small>External<br>Connection<small>}};
+end
+style key stroke-dasharray: 5 5, fill-opacity: 0;
 
-   %% Render links invisible
-   linkStyle 0 stroke:none
-   linkStyle 1 stroke:none
-   linkStyle 2 stroke:none
-   
-   
-
-
-
+%% Render links invisible
+linkStyle 0 stroke:none
+linkStyle 1 stroke:none
+linkStyle 2 stroke:none
 ```
 
 <!-- ![System Diagram](./docs/img/Modular-Amplifier.png) -->

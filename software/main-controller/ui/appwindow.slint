@@ -12,6 +12,7 @@ SelectButton := Rectangle {
     property <image> image;
     property <bool> reversed-order: false;
     background: area.has-hover ? @linear-gradient(90deg, green, darkgreen) : #121212;
+    width: 140px;
         
     VerticalLayout {
         alignment: center;  
@@ -73,13 +74,15 @@ Logo := Rectangle {
 
 
 export AppWindow := Window { 
+    title: "Modular Audio";
     width: 800px;
     height: 480px;
     background: black;
     property<int> counter: 4;
     callback select_source();
 
-    HorizontalLayout { 
+    HorizontalLayout {
+    
         padding: 5px;
         VerticalLayout {
             spacing:10px;
@@ -89,7 +92,7 @@ export AppWindow := Window {
             SelectButton { text: "DAB Radio"; image: @image-url("../images/radio_black_24dp.svg"); }
         }
         
-        VerticalBox { 
+        VerticalLayout { 
             Logo {height : 30px;}
             Text {
                 text: "Sources";
@@ -102,8 +105,9 @@ export AppWindow := Window {
         
         
         
-        VerticalBox {
-            padding: 5px;
+        VerticalLayout {
+            spacing: 10px;
+            //padding: 5px;
             SelectButton { text: "CD"; image: @image-url("../images/album_black_24dp.svg"); reversed-order: true;}
             SelectButton { text: "DVD"; image:@image-url("../images/album_black_24dp.svg"); reversed-order: true;}
             SelectButton { text: "More"; image:@image-url("../images/more_horiz_black_24dp.svg"); reversed-order: true;}

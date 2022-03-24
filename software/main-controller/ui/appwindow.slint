@@ -1,0 +1,106 @@
+// See https://slint-ui.com/releases/0.2.1/docs/rust/slint/docs/builtin_elements/index.html#gridlayout
+// See https://slint-ui.com/releases/0.2.0/docs/rust/slint/docs/widgets/index.html
+
+import { Button, VerticalBox, HorizontalBox} from "std-widgets.slint";
+
+
+SelectButton := Rectangle {
+    
+    //background: area.has-hover ? green : #121212;
+    
+    property <string> text;
+    property <image> image;
+    property <bool> right-aligned: false;
+    background: area.has-hover ? @linear-gradient(90deg, green, darkgreen) : #121212;
+
+    VerticalLayout {
+        alignment: center;  
+        
+        HorizontalLayout { 
+            padding: 10px;
+            spacing: 10px;
+            //alignment: start;
+            alignment: (right-aligned) ?  end : start;    
+            Image {
+                height: 30px;
+                width: 30px;
+                
+                source: root.image;
+                //colorize: green;
+                colorize: area.has-hover? black : green;
+
+            }
+            Text {
+                //horizontal-alignment: TextHorizontalAlignment.center;
+                vertical-alignment: TextVerticalAlignment.center;
+                text: root.text;
+                color: area.has-hover ? black: lightgreen;
+            }
+        }
+    }
+    area := TouchArea {}
+}
+
+Logo := Rectangle {
+    background: #121212;
+    border-color: green;
+    border-width: 2px;
+    
+    layout := VerticalLayout {
+        content := Text {
+            text: "Doble Audio";
+            color: white;
+            font-size: 14px;
+            horizontal-alignment: TextHorizontalAlignment.center;
+            vertical-alignment: TextVerticalAlignment.center;
+        }
+}
+    
+}
+
+
+
+export AppWindow := Window { 
+    width: 800px;
+    height: 480px;
+    background: black;
+    property<int> counter: 4;
+    callback select_source();
+
+    HorizontalLayout { 
+        padding: 5px;
+        VerticalLayout {
+            spacing:10px;
+            SelectButton { text: "Bluetooth"; image: @image-url("../images/bluetooth_black_24dp.svg");}
+            SelectButton { text: "Airplay"; image: @image-url("../images/cast_black_24dp.svg"); }
+            SelectButton { text: "Internet Radio"; image: @image-url("../images/radio_black_24dp.svg"); }
+            SelectButton { text: "CD"; image: @image-url("../images/album_black_24dp.svg");}
+        }
+
+        VerticalBox { 
+            Logo {height : 30px;}
+            Text {
+                text: "Sources";
+                color: white;
+                font-size: 16px;
+                horizontal-alignment: TextHorizontalAlignment.center;
+                vertical-alignment: TextVerticalAlignment.center;
+            }
+        }
+        
+        
+        
+        VerticalBox {
+            padding: 5px;
+            SelectButton { text: "TOSLINK";}
+            SelectButton { text: "DAB Radio"; image: @image-url("../images/radio_black_24dp.svg");}
+            SelectButton { text: "DVD"; }
+            SelectButton { text: "Settings"; }
+            
+        }
+
+    }
+    
+    
+    
+}

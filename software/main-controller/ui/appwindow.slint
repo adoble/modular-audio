@@ -4,15 +4,15 @@
 import { Button, VerticalBox, HorizontalBox} from "std-widgets.slint";
 
 
+
 SelectButton := Rectangle {
     
     //background: area.has-hover ? green : #121212;
-    
     property <string> text;
     property <image> image;
-    property <bool> right-aligned: false;
+    property <bool> reversed-order: false;
     background: area.has-hover ? @linear-gradient(90deg, green, darkgreen) : #121212;
-
+        
     VerticalLayout {
         alignment: center;  
         
@@ -20,21 +20,33 @@ SelectButton := Rectangle {
             padding: 10px;
             spacing: 10px;
             //alignment: start;
-            alignment: (right-aligned) ?  end : start;    
-            Image {
+            alignment: (reversed-order) ?  end : start;  
+
+            // TODO there has to be a more elegant solution to 
+            // reversing the orderer of the text and image!
+            
+            if !reversed-order : caption-image := Image {
                 height: 30px;
                 width: 30px;
-                
                 source: root.image;
-                //colorize: green;
                 colorize: area.has-hover? black : green;
-
             }
-            Text {
-                //horizontal-alignment: TextHorizontalAlignment.center;
+            if !reversed-order : caption-text := Text {
                 vertical-alignment: TextVerticalAlignment.center;
                 text: root.text;
                 color: area.has-hover ? black: lightgreen;
+            }
+            // Reversed ordeer of elements if the selection button is reversed-order
+            if reversed-order : reversed-caption-text := Text {
+                vertical-alignment: TextVerticalAlignment.center;
+                text: root.text;
+                color: area.has-hover ? black: lightgreen;
+            }
+            if reversed-order : reversed-caption-image := Image {
+                height: 30px;
+                width: 30px;
+                source: root.image;
+                colorize: area.has-hover? black : green;
             }
         }
     }
@@ -92,10 +104,10 @@ export AppWindow := Window {
         
         VerticalBox {
             padding: 5px;
-            SelectButton { text: "TOSLINK";}
-            SelectButton { text: "DAB Radio"; image: @image-url("../images/radio_black_24dp.svg");}
-            SelectButton { text: "DVD"; }
-            SelectButton { text: "Settings"; }
+            SelectButton { text: "TOSLINK"; reversed-order: true;}
+            SelectButton { text: "DAB Radio"; image: @image-url("../images/radio_black_24dp.svg"); reversed-order: true;}
+            SelectButton { text: "DVD"; reversed-order: true;}
+            SelectButton { text: "Settings"; reversed-order: true;}
             
         }
 

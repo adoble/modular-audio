@@ -32,6 +32,7 @@ cd -- I2S  --- i2sm;
 dvd -- "S/PDIF" --- spdif["S/PDIF Module"] -- I2S --- i2sm;
 aux --- adc[Analog to <br>Digital Converter] -- I2S --- i2sm;
 tos_link_in -- "S/PDIF" --- toslink_converter[TOSLINK<br>Converter] -- I2S --- i2sm; 
+dab["DAB Radio"] -- I2S --- i2sm
 
 amp --- left{{Left}} --- left_spk((Left <br> Speaker)) 
 amp --- right{{Right}} --- right_spk((Right <br> Speaker)) 

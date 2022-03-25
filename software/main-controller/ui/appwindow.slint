@@ -4,79 +4,9 @@
 
 //import { Button, VerticalBox, HorizontalBox} from "std-widgets.slint";
 
+import {SelectScreen} from "./selectscreen.slint";
 
-
-SelectButton := Rectangle {
-    
-    //background: area.has-hover ? green : #121212;
-    property <string> text;
-    property <image> image;
-    property <bool> reversed-order: false;
-    property <length> font-size: 16px;
-    property <color> text-color: white; //lightgreen;
-    background: area.has-hover ? @linear-gradient(90deg, green, darkgreen) : #121212;
-    width: 170px;
-    
-        
-    VerticalLayout {
-        alignment: center;
-                
-        HorizontalLayout { 
-            padding: 10px;
-            spacing: 10px;
-            alignment: (reversed-order) ?  end : start;  
-
-            // TODO there has to be a more elegant solution to 
-            // reversing the orderer of the text and image!
-            
-            if !reversed-order : caption-image := Image {
-                height: 30px;
-                width: 30px;
-                source: root.image;
-                colorize: area.has-hover? black : green;
-            }
-            if !reversed-order : caption-text := Text {
-                font-size: root.font-size;
-                vertical-alignment: TextVerticalAlignment.center;
-                text: root.text;
-                color: area.has-hover ? black: root.text-color;
-            }
-            // Reversed order of elements if the selection button is reversed-order
-            if reversed-order : reversed-caption-text := Text {
-                font-size: root.font-size;
-                vertical-alignment: TextVerticalAlignment.center;
-                text: root.text;
-                color: area.has-hover ? black: root.text-color;
-            }
-            if reversed-order : reversed-caption-image := Image {
-                height: 30px;
-                width: 30px;
-                source: root.image;
-                colorize: area.has-hover? black : green;
-            }
-        }
-    }
-    area := TouchArea {}
-}
-
-Logo := Rectangle {
-    background: #121212;
-    border-color: green;
-    border-width: 2px;
-    
-    layout := VerticalLayout {
-        content := Text {
-            text: "Doble Audio";
-            color: white;
-            font-size: 14px;
-            horizontal-alignment: TextHorizontalAlignment.center;
-            vertical-alignment: TextVerticalAlignment.center;
-        }
-}
-    
-}
-
-
+// TODO different pages - See https://slint-ui.com/releases/0.2.1/editor/?load_url=https://raw.githubusercontent.com/slint-ui/slint/master/examples/printerdemo/ui/printerdemo.slint
 
 export AppWindow := Window { 
     title: "Modular Audio";
@@ -84,44 +14,8 @@ export AppWindow := Window {
     height: 480px;
     background: black;
     callback select_source();
-
-    HorizontalLayout {
     
-        padding: 5px;
-        VerticalLayout {
-            spacing:10px;
-            SelectButton { text: "Bluetooth"; image: @image-url("../images/bluetooth_black_24dp.svg");}
-            SelectButton { text: "Airplay"; image: @image-url("../images/cast_black_24dp.svg"); }
-            SelectButton { text: "Internet Radio"; image: @image-url("../images/radio_black_24dp.svg"); }
-            SelectButton { text: "DAB Radio"; image: @image-url("../images/radio_black_24dp.svg"); }
-        }
-        
-        VerticalLayout { 
-            Logo {height : 30px;}
-            Text {
-                text: "Sources";
-                color: white;
-                font-size: 16px;
-                horizontal-alignment: TextHorizontalAlignment.center;
-                vertical-alignment: TextVerticalAlignment.center;
-            }
-        }
-        
-        
-        
-        VerticalLayout {
-            spacing: 10px;
-            //padding: 5px;
-            SelectButton { text: "CD"; image: @image-url("../images/album_black_24dp.svg"); reversed-order: true;}
-            SelectButton { text: "DVD"; image:@image-url("../images/album_black_24dp.svg"); reversed-order: true;}
-            SelectButton { text: "More"; image:@image-url("../images/more_horiz_black_24dp.svg"); reversed-order: true;}
-            SelectButton { text: "Settings"; image:@image-url("../images/settings_black_24dp.svg"); reversed-order: true;}
-            // Following go into the "More ..." screen
-            //SelectButton { text: "TOSLINK"; reversed-order: true;}
-            //SelectButton { text: "Aux In"; reversed-order: true;}
-    }
-
-    }
+    SelectScreen {}
     
     
     

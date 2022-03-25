@@ -5,8 +5,8 @@ fn main() {
 
     let ui_handle = ui.as_weak();
     ui.on_select_source(move || {
-        let ui = ui_handle.unwrap();
-        ui.set_counter(ui.get_counter() + 1);
+        let _ui = ui_handle.unwrap();
+        //ui.set_counter(ui.get_counter() + 1);
     });
 
     ui.run();

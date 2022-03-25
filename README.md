@@ -12,6 +12,7 @@ graph LR;
 main_ctrl["Main Controller"] --- i2sm[I2SMultiplexor];
 main_ctrl --- display_driver[Display Driver] --- Display;
 main_ctrl -- SPI --- dsp;
+main_ctrl -- SPI --- wifi["WiFi Co-Processor"]
 i2sm -- I2S --- dsp["Digital Signal <br> Processor"] -- I2S --- amp[Amplifier];
 dsp -- I2S --- toslink_out_converter[TOSLINK<br>Converter] -- "S/PDIF" --- toslink_out{{TOSLINK <br> Out}};
 

@@ -1,5 +1,6 @@
-// See https://slint-ui.com/releases/0.2.1/docs/rust/slint/docs/builtin_elements/index.html#gridlayout
+// See https://slint-ui.com/releases/0.2.1/docs/rust/slint/docs/builtin_elements/index.html
 // See https://slint-ui.com/releases/0.2.0/docs/rust/slint/docs/widgets/index.html
+// See https://docs.rs/slint/latest/slint/docs/langref/index.html
 
 import { Button, VerticalBox, HorizontalBox} from "std-widgets.slint";
 
@@ -11,16 +12,17 @@ SelectButton := Rectangle {
     property <string> text;
     property <image> image;
     property <bool> reversed-order: false;
+    property <length> font-size: 16px;
     background: area.has-hover ? @linear-gradient(90deg, green, darkgreen) : #121212;
-    width: 140px;
+    width: 170px;
+    
         
     VerticalLayout {
-        alignment: center;  
-        
+        alignment: center;
+                
         HorizontalLayout { 
             padding: 10px;
             spacing: 10px;
-            //alignment: start;
             alignment: (reversed-order) ?  end : start;  
 
             // TODO there has to be a more elegant solution to 
@@ -33,12 +35,14 @@ SelectButton := Rectangle {
                 colorize: area.has-hover? black : green;
             }
             if !reversed-order : caption-text := Text {
+                font-size: root.font-size;
                 vertical-alignment: TextVerticalAlignment.center;
                 text: root.text;
                 color: area.has-hover ? black: lightgreen;
             }
-            // Reversed ordeer of elements if the selection button is reversed-order
+            // Reversed order of elements if the selection button is reversed-order
             if reversed-order : reversed-caption-text := Text {
+                font-size: root.font-size;
                 vertical-alignment: TextVerticalAlignment.center;
                 text: root.text;
                 color: area.has-hover ? black: lightgreen;

@@ -5,6 +5,10 @@ global Palette := {
     
 }
 
+export global ActiveScreen := {
+    property <int> id;
+}
+
 
 export SelectButton := Rectangle {
     property <string> text;
@@ -12,7 +16,10 @@ export SelectButton := Rectangle {
     property <bool> reversed-order: false;
     property <length> font-size: 16px;
     property <color> text-color: Palette.text-color; 
-    background: area.has-hover? @linear-gradient((reversed-order?-90deg: 90deg),  Palette.highlight-color, Palette.highlight-color.darker(0.2)) : Palette.dark-theme-grey ;
+    property <bool> highlighted : false;
+    property <int> next-screen-id: 0 ;
+    //background: area.has-hover? @linear-gradient((reversed-order?-90deg: 90deg),  Palette.highlight-color, Palette.highlight-color.darker(0.2)) : Palette.dark-theme-grey ;
+    background: highlighted ? @linear-gradient((reversed-order?-90deg: 90deg),  Palette.highlight-color, Palette.highlight-color.darker(0.2)) : Palette.dark-theme-grey ;
                                
     width: 170px;
 
@@ -22,6 +29,7 @@ export SelectButton := Rectangle {
         alignment: center;
                 
         caption := HorizontalLayout { 
+                      
             padding: 10px;
             spacing: 10px;
             alignment: (reversed-order) ?  end : start;  
@@ -33,39 +41,49 @@ export SelectButton := Rectangle {
                 height: 30px;
                 width: 30px;
                 source: root.image;
-                colorize: area.has-hover? black : Palette.highlight-color;
+                //colorize: area.has-hover? black : Palette.highlight-color;
+                colorize: highlighted ? black : Palette.highlight-color;
+                animate  colorize{ duration: 100ms ; easing: ease; }
             }
             if !reversed-order : caption-text := Text {
                 font-size: root.font-size;
                 vertical-alignment: TextVerticalAlignment.center;
                 text: root.text;
-                color: area.has-hover ? black: root.text-color;
+                //color: area.has-hover ? black: root.text-color;
+                color: highlighted ? black: root.text-color;
+                animate  color{ duration: 100ms ; easing: ease; }
             }
             // Reversed order of elements if the selection button is reversed-order
             if reversed-order : reversed-caption-text := Text {
                 font-size: root.font-size;
                 vertical-alignment: TextVerticalAlignment.center;
                 text: root.text;
-                color: area.has-hover ? black: root.text-color;
+                //color: area.has-hover ? black: root.text-color;
+                color: highlighted ? black: root.text-color;
+                animate  color{ duration: 100ms ; easing: ease; }
             }
             if reversed-order : reversed-caption-image := Image {
                 height: 30px;
                 width: 30px;
                 source: root.image;
-                colorize: area.has-hover? black : Palette.highlight-color;
+                //colorize: area.has-hover? black : Palette.highlight-color;
+                colorize: highlighted ? black : Palette.highlight-color;
+                animate  colorize{ duration: 100ms ; easing: ease; } 
             }
         }
     }
     area := TouchArea {
-        // clicked => {root.background = @linear-gradient(90deg, green, darkgreen);
-        //             caption.color = }
+        clicked =>  {
+                      highlighted = true;
+                      ActiveScreen.id = next-screen-id;
+                    }
     }
 }
 
 export Logo := Rectangle {
     background: Palette.dark-theme-grey;
     border-color: Palette.highlight-color;
-    border-width: 2px;
+     border-width: 2px;
     
     layout := VerticalLayout {
         content := Text {

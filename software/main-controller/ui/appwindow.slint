@@ -5,6 +5,8 @@
 //import { Button, VerticalBox, HorizontalBox} from "std-widgets.slint";
 
 import {SelectScreen} from "./selectscreen.slint";
+import {MoreSelectScreen} from "./moreselectscreen.slint";
+import {ActiveScreen} from "./common.slint";
 
 // TODO different pages - See https://slint-ui.com/releases/0.2.1/editor/?load_url=https://raw.githubusercontent.com/slint-ui/slint/master/examples/printerdemo/ui/printerdemo.slint
 
@@ -14,8 +16,17 @@ export AppWindow := Window {
     height: 480px;
     background: black;
     callback select_source();
+    callback select_screen();
+
     
-    SelectScreen {}
+    
+    SelectScreen {
+        visible : ActiveScreen.id == 0;  
+    }
+
+    MoreSelectScreen {
+        visible: ActiveScreen.id == 1 ;
+    }
     
     
     

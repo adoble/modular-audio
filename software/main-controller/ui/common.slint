@@ -1,19 +1,27 @@
-export SelectButton := Rectangle {
+global Palette := {
+    property <color> text-color : white ;
+    property <color> highlight-color : green; 
+    property <color> dark-theme-grey : #121212;
     
-    //background: area.has-hover ? green : #121212;
+}
+
+
+export SelectButton := Rectangle {
     property <string> text;
     property <image> image;
     property <bool> reversed-order: false;
     property <length> font-size: 16px;
-    property <color> text-color: white; //lightgreen;
-    background: area.has-hover ? @linear-gradient(90deg, green, darkgreen) : #121212;
+    property <color> text-color: Palette.text-color; 
+    background: area.has-hover? @linear-gradient(90deg,  Palette.highlight-color, Palette.highlight-color.darker(0.3)) : Palette.dark-theme-grey ;
+                               
     width: 170px;
-    
+
+      
         
     VerticalLayout {
         alignment: center;
                 
-        HorizontalLayout { 
+        caption := HorizontalLayout { 
             padding: 10px;
             spacing: 10px;
             alignment: (reversed-order) ?  end : start;  
@@ -25,7 +33,7 @@ export SelectButton := Rectangle {
                 height: 30px;
                 width: 30px;
                 source: root.image;
-                colorize: area.has-hover? black : green;
+                colorize: area.has-hover? black : Palette.highlight-color;
             }
             if !reversed-order : caption-text := Text {
                 font-size: root.font-size;
@@ -44,16 +52,19 @@ export SelectButton := Rectangle {
                 height: 30px;
                 width: 30px;
                 source: root.image;
-                colorize: area.has-hover? black : green;
+                colorize: area.has-hover? black : Palette.highlight-color;
             }
         }
     }
-    area := TouchArea {}
+    area := TouchArea {
+        // clicked => {root.background = @linear-gradient(90deg, green, darkgreen);
+        //             caption.color = }
+    }
 }
 
 export Logo := Rectangle {
-    background: #121212;
-    border-color: green;
+    background: Palette.dark-theme-grey;
+    border-color: Palette.highlight-color;
     border-width: 2px;
     
     layout := VerticalLayout {

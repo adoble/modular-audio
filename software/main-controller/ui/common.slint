@@ -12,7 +12,7 @@ export SelectButton := Rectangle {
     property <bool> reversed-order: false;
     property <length> font-size: 16px;
     property <color> text-color: Palette.text-color; 
-    background: area.has-hover? @linear-gradient(90deg,  Palette.highlight-color, Palette.highlight-color.darker(0.3)) : Palette.dark-theme-grey ;
+    background: area.has-hover? @linear-gradient((reversed-order?-90deg: 90deg),  Palette.highlight-color, Palette.highlight-color.darker(0.2)) : Palette.dark-theme-grey ;
                                
     width: 170px;
 

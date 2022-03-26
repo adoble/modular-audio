@@ -1,0 +1,36 @@
+import { SelectButton, Logo } from "./common.slint";
+
+export MoreSelectScreen := HorizontalLayout {
+        
+    padding: 5px;
+    VerticalLayout {
+        spacing:10px;
+        SelectButton { text: "TOSLINK"; image: @image-url("../images/cable_black_24dp.svg");}
+        SelectButton {}
+        SelectButton {}
+        SelectButton {}
+    }
+    
+    VerticalLayout { 
+        Logo {height : 30px;}
+        Text {
+            text: "Sources";
+            color: white;
+            font-size: 16px;
+            horizontal-alignment: TextHorizontalAlignment.center;
+            vertical-alignment: TextVerticalAlignment.center;
+        }
+    }
+    
+    
+    VerticalLayout {
+        spacing: 10px;
+        //padding: 5px;
+        SelectButton { text: "Aux In"; image: @image-url("../images/settings_input_svideo_black_24dp.svg"); reversed-order: true;}
+        SelectButton {}
+        SelectButton {}
+        SelectButton { text: "Back"; image: @image-url("../images/keyboard_return_black_24dp.svg"); reversed-order: true;}
+    }
+
+    
+}

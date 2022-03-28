@@ -9,6 +9,10 @@ export global ActiveScreen := {
     property <int> id;
 }
 
+export global ActiveSelectButton := {
+    property <int> id ;
+}
+
 
 export SelectButton := Rectangle {
     property <string> text;
@@ -16,7 +20,8 @@ export SelectButton := Rectangle {
     property <bool> reversed-order: false;
     property <length> font-size: 16px;
     property <color> text-color: Palette.text-color; 
-    property <bool> highlighted : false;
+    property <int> id: 0;
+    property <bool> highlighted : ActiveSelectButton.id == id;  
     property <int> next-screen-id: 0 ;
     //background: area.has-hover? @linear-gradient((reversed-order?-90deg: 90deg),  Palette.highlight-color, Palette.highlight-color.darker(0.2)) : Palette.dark-theme-grey ;
     background: highlighted ? @linear-gradient((reversed-order?-90deg: 90deg),  Palette.highlight-color, Palette.highlight-color.darker(0.2)) : Palette.dark-theme-grey ;
@@ -74,7 +79,8 @@ export SelectButton := Rectangle {
     }
     area := TouchArea {
         clicked =>  {
-                      highlighted = true;
+                      //highlighted = true;
+                      ActiveSelectButton.id = id;
                       ActiveScreen.id = next-screen-id;
                     }
     }

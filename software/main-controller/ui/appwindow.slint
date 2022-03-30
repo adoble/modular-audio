@@ -22,12 +22,17 @@ export AppWindow := Window {
     
     SelectScreen {
         visible : ActiveScreen.id == 0;  
+        opacity: ActiveScreen.id == 0 ? 1. : 0.;
+        animate opacity {  duration: 500ms;}
     }
 
     MoreSelectScreen {
         visible: ActiveScreen.id == 1 ;
+        opacity: ActiveScreen.id == 1 ? 1. : 0.;
+        animate opacity {  duration: 500ms;}
     }
+
     
-    
-    
+
 }
+    

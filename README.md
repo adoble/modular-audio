@@ -31,7 +31,7 @@ end
 airlink["Airlink/Bluetooth <br> /Internet Radio <br> Module"] -- I2S --- i2sm
 cd -- I2S  --- i2sm;
 dvd -- "S/PDIF" --- spdif["S/PDIF Module"] -- I2S --- i2sm;
-aux --- adc[Analog to <br>Digital Converter] -- I2S --- i2sm;
+aux --- Pre-Amp --- adc[Analog to <br>Digital Converter] -- I2S --- i2sm;
 tos_link_in -- "S/PDIF" --- toslink_converter[TOSLINK<br>Converter] -- I2S --- i2sm; 
 dab["DAB Radio"] -- I2S --- i2sm
 

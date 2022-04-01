@@ -5,6 +5,29 @@ global Palette := {
     
 }
 
+// Ids of screens as properties so that we do not have the remember them.
+export global Screens := {
+    property <int> select : 0;
+    property <int> more-select : 1;
+    property <int> bluetooth : 2;
+   
+}
+
+// Ids of select buttons as properties so that we do not have the remember them.
+export global SelectButtons := {
+    property <int> bluetooth: 1;
+    property <int> airplay: 2;
+    property <int> internet-radio: 3;
+    property <int> dab-radio: 4;
+    property <int> cd: 5;
+    property <int> dvd: 6;
+    property <int> more: 7;
+    property <int> settings: 8;
+    property <int> toslink: 9;
+    property <int> aux-in: 10;
+
+}
+
 export global ActiveScreen := {
     property <int> id;
 }

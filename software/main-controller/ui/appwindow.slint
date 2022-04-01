@@ -6,7 +6,7 @@
 
 import {SelectScreen} from "./selectscreen.slint";
 import {MoreSelectScreen} from "./moreselectscreen.slint";
-import {ActiveScreen} from "./common.slint";
+import {ActiveScreen, Screens} from "./common.slint";
 
 // TODO different pages - See https://slint-ui.com/releases/0.2.1/editor/?load_url=https://raw.githubusercontent.com/slint-ui/slint/master/examples/printerdemo/ui/printerdemo.slint
 
@@ -18,17 +18,18 @@ export AppWindow := Window {
     callback select_source();
     callback select_screen();
 
-    
-    
     SelectScreen {
-        visible : ActiveScreen.id == 0;  
-        opacity: ActiveScreen.id == 0 ? 1. : 0.;
+        // visible : ActiveScreen.id == 0;  
+        // opacity: ActiveScreen.id == 0 ? 1. : 0.;
+        
+        visible : ActiveScreen.id == Screens.select;  
+        opacity: ActiveScreen.id == Screens.select ? 1. : 0.;
         animate opacity {  duration: 500ms;}
     }
 
     MoreSelectScreen {
-        visible: ActiveScreen.id == 1 ;
-        opacity: ActiveScreen.id == 1 ? 1. : 0.;
+        visible: ActiveScreen.id == Screens.more-select ;
+        opacity: ActiveScreen.id == Screens.more-select ? 1. : 0.;
         animate opacity {  duration: 500ms;}
     }
 

@@ -1,0 +1,47 @@
+import { SelectButton, Logo, Screens, SelectButtons, Palette} from "./common.slint";
+
+export BluetoothScreen := HorizontalLayout {
+        
+    padding: 5px;
+    VerticalLayout {
+        spacing:10px;
+        SelectButton { text: "Previous"; image: @image-url("../images/skip_previous_black_24dp.svg"); id: SelectButtons.prev;}
+        SelectButton { }
+        SelectButton { }
+        SelectButton { }
+    }
+    
+    VerticalLayout { 
+        //Logo {height : 30px;}
+        // Text {
+        //     text: "Sources";
+        //     color: white;
+        //     font-size: 16px;
+        //     horizontal-alignment: TextHorizontalAlignment.center;
+        //     vertical-alignment: TextVerticalAlignment.center;
+        // }
+        
+        Image {
+            source: @image-url("../images/bluetooth_audio_black_24dp.svg");
+            colorize: Palette.highlight-color;
+            //width: 100px;
+        }
+        
+    }
+    
+    
+    
+    VerticalLayout {
+        spacing: 10px;
+        //padding: 5px;
+        SelectButton { text: "Next"; image: @image-url("../images/skip_next_black_24dp.svg"); reversed-order: true;id: SelectButtons.next;}
+        SelectButton {}
+        SelectButton { }
+        SelectButton { text: "Back"; image:@image-url("../images/keyboard_return_black_24dp.svg"); reversed-order: true; }
+        // Following go into the "More ..." screen
+        //SelectButton { text: "TOSLINK"; reversed-order: true;}
+        //SelectButton { text: "Aux In"; reversed-order: true;}
+    }
+
+    
+}

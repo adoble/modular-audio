@@ -20,11 +20,29 @@ export BluetoothScreen := HorizontalLayout {
         //     horizontal-alignment: TextHorizontalAlignment.center;
         //     vertical-alignment: TextVerticalAlignment.center;
         // }
-        
-        Image {
-            source: @image-url("../images/bluetooth_audio_black_24dp.svg");
-            colorize: Palette.highlight-color;
-            //width: 100px;
+        Rectangle {  
+            GridLayout { 
+                Row {
+                    Rectangle {  }
+                    Rectangle {  }
+                    Rectangle {  }
+                }
+                Row {
+                    Rectangle {  }
+                    Image {
+                        source: @image-url("../images/bluetooth_audio_black_24dp.svg");
+                        colorize: Palette.highlight-color;
+                        width: source.width * 4 * 1px;
+                    }
+                    Rectangle {  }
+                }
+                Row {
+                    Rectangle {  }
+                    Rectangle {  }
+                    Rectangle {  }
+                }
+                
+            }
         }
         
     }

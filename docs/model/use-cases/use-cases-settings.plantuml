@@ -1,4 +1,4 @@
-@startuml
+@startuml Settings
 skinparam actorStyle awesome
 left to right direction
 
@@ -9,12 +9,14 @@ rectangle Amplifier-Module {
     user --> Settings
 
     package Settings {
-        usecase (Set WLAN) as wlan
-        usecase (Set WLAN SSID) as wlan_ssid
-        usecase (Set WLAN Password) as wlan_pass
+        usecase (Display WLAN) as disp_wlan
+        usecase (Edit WLAN) as edit_wlan
+        usecase (Edit WLAN SSID) as wlan_ssid
+        usecase (Edit WLAN Password) as wlan_pass
 
-        wlan ..> wlan_ssid : << includes >>  
-        wlan ..> wlan_pass : << includes >>
+        edit_wlan ..> disp_wlan : << includes >>
+        edit_wlan ..> wlan_ssid : << includes >>  
+        edit_wlan ..> wlan_pass : << includes >>
         
         usecase (Keyboard Entry) as keyboard
 
@@ -33,6 +35,7 @@ rectangle Amplifier-Module {
         usecase (Keyboard \n Up) as up
         usecase (Keyboard \n Down) as down
         usecase (Keyboard \n Enter) as enter
+
     }
 
 

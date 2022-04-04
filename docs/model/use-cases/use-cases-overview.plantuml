@@ -1,4 +1,4 @@
-@startuml
+@startuml Overview
 skinparam actorStyle awesome
 left to right direction
 
@@ -6,32 +6,16 @@ actor "Amplifer User" as user
 
 rectangle Amplifier-Module {
     ' Select source
-    package Select-Source {
-        usecase (Select CD) as sel_cd 
-        usecase (Select DVD) as sel_dvd
-        usecase (Select DAB radio) as sel_dab
-        usecase (Select source) as sel_source
-        usecase (Select source \n from touchscreen) as sel_source_touchscreen <<touchscreen>>
-        usecase (Select source \n from knob) as sel_source_knob <<physical>>
-        usecase (Display source control screen) as show_source_control_screen <<touchscreen>>
-        
-        (sel_source)  <.. (sel_dab) : << extends >>
-        (sel_source)  <.. (sel_cd) : << extends >>  
-        (sel_source)  <.. (sel_ir) : << extends >>
-        (sel_source)  <.. (sel_dvd) : << extends >>
-
-        (sel_source) <|-- (sel_source_touchscreen)
-        (sel_source) <|-- (sel_source_knob)
-        (sel_source)  ..> (show_source_control_screen) : << includes >>
-        
+    package Select {
+        usecase (Select Source) as sel_source
     }
 
+    :user: --> sel_source
 
 
 
     
     usecase (Change radio station)  as chg_radio_station
-    :user: --> (sel_source)
     :user: --> (chg_radio_station)
 
 

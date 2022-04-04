@@ -1,0 +1,33 @@
+@startuml Select
+skinparam actorStyle awesome
+left to right direction
+
+actor "Amplifer User" as user
+
+rectangle Amplifier-Module {
+    ' Select source
+    package Select {
+        usecase (Select Bluetooth) as sel_bt
+        usecase (Select CD) as sel_cd 
+        usecase (Select DVD) as sel_dvd
+        usecase (Select \n Internet Radio) as sel_ir
+        usecase (Select DAB radio) as sel_dab
+        usecase (Select source) as sel_source
+        usecase (Select source \n from knob) as sel_source_knob 
+        usecase (Display source control screen) as show_source_control_screen 
+        
+        (sel_source)  <.. (sel_bt) : << extends >>
+        (sel_source)  <.. (sel_ir) : << extends >>
+        (sel_source)  <.. (sel_dab) : << extends >>
+        (sel_source)  <.. (sel_cd) : << extends >>  
+        (sel_source)  <.. (sel_dvd) : << extends >>
+        (sel_source) <|-- (sel_source_knob)
+        (sel_source)  ..> (show_source_control_screen) : << includes >>
+        
+    }
+
+}
+
+user --> sel_source
+
+@enduml

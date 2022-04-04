@@ -17,6 +17,10 @@ void setup()
   pinMode(ADDR_2, OUTPUT);
   pinMode(SRC_EN, OUTPUT);
 
+  // Set up default source as channel 2
+  set_source_channel(2);
+  Serial.println("Current source is: 2");
+
   Serial.println("Enter source [0..7]");
 }
 

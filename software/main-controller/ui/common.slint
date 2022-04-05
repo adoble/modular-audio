@@ -48,6 +48,12 @@ export global ActiveSelectButton := {
 }
 
 
+// FIXME these selections  are a mess. 
+export global  Source  := {
+      callback select-source(int);
+}
+
+
 export SelectButton := Rectangle {
     property <string> text;
     property <image> image;
@@ -57,6 +63,8 @@ export SelectButton := Rectangle {
     property <int> id: 0;
     property <bool> highlighted : ActiveSelectButton.id == id;  
     property <int> next-screen-id: 0 ;
+
+    //callback select-source();
     //background: area.has-hover? @linear-gradient((reversed-order?-90deg: 90deg),  Palette.highlight-color, Palette.highlight-color.darker(0.2)) : Palette.dark-theme-grey ;
     background: highlighted ? @linear-gradient((reversed-order?-90deg: 90deg),  Palette.highlight-color, Palette.highlight-color.darker(0.2)) : Palette.dark-theme-grey ;
                                
@@ -112,11 +120,24 @@ export SelectButton := Rectangle {
         }
     }
     area := TouchArea {
-        clicked =>  {
-                      //highlighted = true;
-                      ActiveSelectButton.id = id;
-                      ActiveScreen.id = next-screen-id;
+        // clicked =>  {
+        //               //highlighted = true;
+        //               ActiveSelectButton.id = id;
+        //               ActiveScreen.id = next-screen-id;
+        //               Source.select-source(id);
+        //             }
+        pointer-event(event) => { 
+                    if (event.kind == PointerEventKind.down) {
+                        root.highlighted = true;
+                       
+                    } else if (event.kind == PointerEventKind.up) {
+                        root.highlighted = false;
+                        ActiveSelectButton.id = id;
+                        ActiveScreen.id = next-screen-id;
+                        Source.select-source(id);
                     }
+         }
+        
     }
 }
 

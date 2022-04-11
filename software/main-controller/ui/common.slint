@@ -10,34 +10,42 @@ export global Screens := {
     property <int> select-source : 0;
     property <int> more-select-source : 1;
     property <int> bluetooth : 2;
-   
+    property <int> airplay : 3;
+    property <int> internet-radio : 4;
+    property <int> dab-radio : 5;
+    property <int> cd : 6;
+    property <int> dvd : 7;
+    property <int> settings : 8;
+    property <int> toslink : 9;
+    property <int> aux-in : 10;
+    
 }
 
 // Ids of select buttons as properties so that we do not have the remember them.
 // TODO as we go imeediatly to another screen and these are only used to remove highlighting
 //      then perhaps we do not need them 
-export global SelectButtons := {
-    // Select screen
-    property <int> bluetooth: 1;
-    property <int> airplay: 2;
-    property <int> internet-radio: 3;
-    property <int> dab-radio: 4;
-    property <int> cd: 5;
-    property <int> dvd: 6;
-    property <int> more-sources: 7;
-    property <int> settings: 8;
+// export global SelectButtons := {
+//     // Select screen
+//     property <int> bluetooth: 1;
+//     property <int> airplay: 2;
+//     property <int> internet-radio: 3;
+//     property <int> dab-radio: 4;
+//     property <int> cd: 5;
+//     property <int> dvd: 6;
+//     property <int> more-sources: 7;
+//     property <int> settings: 8;
 
-    // More select sources screen
-    property <int> toslink: 9;
-    property <int> aux-in: 10;
+//     // More select sources screen
+//     property <int> toslink: 9;
+//     property <int> aux-in: 10;
 
-    // Bluetooth screen
-    property <int> prev: 11;
-    property <int> next: 12;
+//     // Bluetooth screen
+//     property <int> prev: 11;
+//     property <int> next: 12;
     
 
 
-}
+// }
 
 export global ActiveScreen := {
     property <int> id;
@@ -50,7 +58,17 @@ export global ActiveSelectButton := {
 
 // FIXME these selections  are a mess. 
 export global  Source  := {
-      callback select-source(int);
+    property <int> bluetooth: 0;
+    property <int> airplay: 2;
+    property <int> internet-radio: 3;
+    property <int> dab-radio: 4;
+    property <int> cd: 5;
+    property <int> dvd: 6;
+    property <int> toslink: 7;
+    property <int> aux-in: 8;
+    
+    
+    callback select-source(int);
 }
 
 
@@ -60,9 +78,12 @@ export SelectButton := Rectangle {
     property <bool> reversed-order: false;
     property <length> font-size: 16px;
     property <color> text-color: Palette.text-color; 
-    property <int> id: 0;
-    property <bool> highlighted : ActiveSelectButton.id == id;  
+    // property <int> id: 0;
+    // property <bool> highlighted : ActiveSelectButton.id == id;  
+    property <bool> highlighted : false;  
     property <int> next-screen-id: 0 ;
+
+    property <int> source: -1 ;  // -1 means no source selected. Better to use Option, but they do not exists in slint as yet.
 
     //callback select-source();
     //background: area.has-hover? @linear-gradient((reversed-order?-90deg: 90deg),  Palette.highlight-color, Palette.highlight-color.darker(0.2)) : Palette.dark-theme-grey ;
@@ -132,9 +153,9 @@ export SelectButton := Rectangle {
                        
                     } else if (event.kind == PointerEventKind.up) {
                         root.highlighted = false;
-                        ActiveSelectButton.id = id;
+                        // ActiveSelectButton.id = id;
                         ActiveScreen.id = next-screen-id;
-                        Source.select-source(id);
+                        Source.select-source(source);
                     }
          }
         

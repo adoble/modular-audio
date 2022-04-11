@@ -1,11 +1,11 @@
-import { SelectButton, Logo } from "./common.slint";
+import { SelectButton, Logo, Source, Screens } from "./common.slint";
 
 export MoreSelectScreen := HorizontalLayout {
         
     padding: 5px;
     VerticalLayout {
         spacing:10px;
-        SelectButton { text: "TOSLINK"; image: @image-url("../images/cable_black_24dp.svg"); id: 9; next-screen-id: 1;}
+        SelectButton { text: "TOSLINK"; image: @image-url("../images/cable_black_24dp.svg"); source: Source.toslink; next-screen-id: Screens.toslink;}
         SelectButton {}
         SelectButton {}
         SelectButton {}
@@ -26,10 +26,10 @@ export MoreSelectScreen := HorizontalLayout {
     VerticalLayout {
         spacing: 10px;
         //padding: 5px;
-        SelectButton { text: "Aux In"; image: @image-url("../images/settings_input_svideo_black_24dp.svg"); reversed-order: true; id: 10; next-screen-id: 1;}
+        SelectButton { text: "Aux In"; image: @image-url("../images/settings_input_svideo_black_24dp.svg"); reversed-order: true; source: Source.aux-in; next-screen-id: Screens.aux-in;}
         SelectButton {}
         SelectButton {}
-        SelectButton { text: "Back"; image: @image-url("../images/keyboard_return_black_24dp.svg"); reversed-order: true; next-screen-id: 0;}
+        SelectButton { text: "Back"; image: @image-url("../images/keyboard_return_black_24dp.svg"); reversed-order: true; next-screen-id: Screens.select-source;}
     }
 
     

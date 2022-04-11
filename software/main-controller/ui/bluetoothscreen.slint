@@ -1,4 +1,4 @@
-import { SelectButton, Logo, Screens, SelectButtons, Palette} from "./common.slint";
+import { SelectButton, Logo, Screens, Palette} from "./common.slint";
 
 export global Bluetooth := {
     property <bool> connecting : false;
@@ -10,7 +10,7 @@ export  BluetoothScreen := HorizontalLayout {
     padding: 5px;
     VerticalLayout {
         spacing:10px;
-        SelectButton { text: "Previous"; image: @image-url("../images/skip_previous_black_24dp.svg"); id: SelectButtons.prev;}
+        SelectButton { text: "Previous"; image: @image-url("../images/skip_previous_black_24dp.svg"); }
         SelectButton { }
         SelectButton { }
         SelectButton { }
@@ -57,7 +57,7 @@ export  BluetoothScreen := HorizontalLayout {
     VerticalLayout {
         spacing: 10px;
         //padding: 5px;
-        SelectButton { text: "Next"; image: @image-url("../images/skip_next_black_24dp.svg"); reversed-order: true;id: SelectButtons.next;}
+        SelectButton { text: "Next"; image: @image-url("../images/skip_next_black_24dp.svg"); reversed-order: true;}
         SelectButton {}
         SelectButton { }
         SelectButton { text: "Back"; image:@image-url("../images/keyboard_return_black_24dp.svg"); reversed-order: true; }

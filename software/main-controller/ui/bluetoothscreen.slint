@@ -1,6 +1,11 @@
 import { SelectButton, Logo, Screens, SelectButtons, Palette} from "./common.slint";
 
-export BluetoothScreen := HorizontalLayout {
+export global Bluetooth := {
+    property <bool> connecting : false;
+  
+}
+
+export  BluetoothScreen := HorizontalLayout {
         
     padding: 5px;
     VerticalLayout {
@@ -31,7 +36,7 @@ export BluetoothScreen := HorizontalLayout {
                     Rectangle {  }
                     Image {
                         source: @image-url("../images/bluetooth_audio_black_24dp.svg");
-                        colorize: Palette.highlight-color;
+                        colorize: Bluetooth.connecting ? orange : Palette.highlight-color;
                         width: source.width * 4 * 1px;
                     }
                     Rectangle {  }

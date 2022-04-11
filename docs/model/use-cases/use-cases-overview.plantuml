@@ -12,8 +12,6 @@ rectangle Amplifier-Module {
 
     :user: --> sel_source
 
-
-
     
     usecase (Change radio station)  as chg_radio_station
     :user: --> (chg_radio_station)

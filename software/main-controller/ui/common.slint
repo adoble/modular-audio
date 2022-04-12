@@ -21,31 +21,7 @@ export global Screens := {
     
 }
 
-// Ids of select buttons as properties so that we do not have the remember them.
-// TODO as we go imeediatly to another screen and these are only used to remove highlighting
-//      then perhaps we do not need them 
-// export global SelectButtons := {
-//     // Select screen
-//     property <int> bluetooth: 1;
-//     property <int> airplay: 2;
-//     property <int> internet-radio: 3;
-//     property <int> dab-radio: 4;
-//     property <int> cd: 5;
-//     property <int> dvd: 6;
-//     property <int> more-sources: 7;
-//     property <int> settings: 8;
 
-//     // More select sources screen
-//     property <int> toslink: 9;
-//     property <int> aux-in: 10;
-
-//     // Bluetooth screen
-//     property <int> prev: 11;
-//     property <int> next: 12;
-    
-
-
-// }
 
 export global ActiveScreen := {
     property <int> id;
@@ -56,9 +32,9 @@ export global ActiveSelectButton := {
 }
 
 
-// FIXME these selections  are a mess. 
+// Sselected sources
 export global  Source  := {
-    property <int> bluetooth: 0;
+    property <int> bluetooth: 1;
     property <int> airplay: 2;
     property <int> internet-radio: 3;
     property <int> dab-radio: 4;
@@ -78,15 +54,11 @@ export SelectButton := Rectangle {
     property <bool> reversed-order: false;
     property <length> font-size: 16px;
     property <color> text-color: Palette.text-color; 
-    // property <int> id: 0;
-    // property <bool> highlighted : ActiveSelectButton.id == id;  
     property <bool> highlighted : false;  
     property <int> next-screen-id: 0 ;
 
-    property <int> source: -1 ;  // -1 means no source selected. Better to use Option, but they do not exists in slint as yet.
+    property <int> source: -1 ;  // -1 means no source selected. Better to use Option, but they do not exist in slint as yet.
 
-    //callback select-source();
-    //background: area.has-hover? @linear-gradient((reversed-order?-90deg: 90deg),  Palette.highlight-color, Palette.highlight-color.darker(0.2)) : Palette.dark-theme-grey ;
     background: highlighted ? @linear-gradient((reversed-order?-90deg: 90deg),  Palette.highlight-color, Palette.highlight-color.darker(0.2)) : Palette.dark-theme-grey ;
                                
     width: 170px;
@@ -141,12 +113,7 @@ export SelectButton := Rectangle {
         }
     }
     area := TouchArea {
-        // clicked =>  {
-        //               //highlighted = true;
-        //               ActiveSelectButton.id = id;
-        //               ActiveScreen.id = next-screen-id;
-        //               Source.select-source(id);
-        //             }
+        
         pointer-event(event) => { 
                     if (event.kind == PointerEventKind.down) {
                         root.highlighted = true;

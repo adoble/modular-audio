@@ -60,23 +60,26 @@ export  BluetoothScreen := HorizontalLayout {
         }
         Row {
             Rectangle {  }
-            Rectangle {  }
-            // Text {
-            //     color: Palette.highlight-color;
-            //     states [
-            //         disconnected when Bluetooth.state == Bluetooth.disconnected : {
-            //             text: "Disconnected";
-            //         }
-            //         connecting when Bluetooth.state == Bluetooth.connecting : {
-            //             text: "Connecting ...";
-            //         }
-            //         connected when Bluetooth.state == Bluetooth.connected : {
-            //             text: "Connected";
-            //         }
+            Rectangle {  
+                Text {
+                color: white;
+                font-size: 16px;
+                states [
+                    disconnected when Bluetooth.state == Bluetooth.disconnected : {
+                        text: "Disconnected";
+                    }
+                    connecting when Bluetooth.state == Bluetooth.connecting : {
+                        text: "Connecting ...";
+                    }
+                    connected when Bluetooth.state == Bluetooth.connected : {
+                        text: "Connected";
+                    }
                 
                 
-            //     ]
-            // }
+                ]
+                }
+            }
+            
             Rectangle {  }
         }
         

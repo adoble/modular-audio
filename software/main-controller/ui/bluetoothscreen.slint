@@ -26,56 +26,62 @@ export  BluetoothScreen := HorizontalLayout {
 
    
     
-    VerticalLayout { 
-        //Logo {height : 30px;}
-        // Text {
-        //     text: "Sources";
-        //     color: white;
-        //     font-size: 16px;
-        //     horizontal-alignment: TextHorizontalAlignment.center;
-        //     vertical-alignment: TextVerticalAlignment.center;
-        // }
-        Rectangle {  
-            GridLayout { 
-                Row {
-                    Rectangle {  }
-                    Rectangle {  }
-                    Rectangle {  }
-                }
-                Row {
-                    Rectangle {  }
-                    Image {
-                        //source: @image-url("../images/bluetooth_audio_black_24dp.svg");
-                        //colorize: Bluetooth.state == Bluetooth.connecting ? orange : Palette.highlight-color;
-                        width: source.width * 4 * 1px;
-                        colorize: Palette.highlight-color;
-
-                        states [
-                            disconnected when Bluetooth.state == Bluetooth.disconnected : {
-                                source: @image-url("../images/bluetooth_disabled_black_24dp.svg");
-                            }
-                            connecting when Bluetooth.state == Bluetooth.connecting : {
-                                source: @image-url("../images/bluetooth_searching_black_24dp.svg");
-                            }
-                            connected when Bluetooth.state == Bluetooth.connected : {
-                                source: @image-url("../images/bluetooth_connected_black_24dp.svg");
-                            }
-                     
-                     
-                        ]
-                    }
-                    Rectangle {  }
-                }
-                Row {
-                    Rectangle {  }
-                    Rectangle {  }
-                    Rectangle {  }
-                }
-                
+    GridLayout { 
+        Row {
+            Rectangle {  }
+            Rectangle {  }
+            Rectangle {  }
             }
+        Row {
+            Rectangle {  }
+            Image {
+                //source: @image-url("../images/bluetooth_audio_black_24dp.svg");
+                //colorize: Bluetooth.state == Bluetooth.connecting ? orange : Palette.highlight-color;
+                width: source.width * 4 * 1px;
+                colorize: Palette.highlight-color;
+
+                states [
+                    disconnected when Bluetooth.state == Bluetooth.disconnected : {
+                        source: @image-url("../images/bluetooth_disabled_black_24dp.svg");
+                    }
+                    connecting when Bluetooth.state == Bluetooth.connecting : {
+                        source: @image-url("../images/bluetooth_searching_black_24dp.svg");
+                    }
+                    connected when Bluetooth.state == Bluetooth.connected : {
+                        source: @image-url("../images/bluetooth_connected_black_24dp.svg");
+                    }
+                
+                
+                ]
+
+            }
+            
+            Rectangle {  }
+        }
+        Row {
+            Rectangle {  }
+            Rectangle {  }
+            // Text {
+            //     color: Palette.highlight-color;
+            //     states [
+            //         disconnected when Bluetooth.state == Bluetooth.disconnected : {
+            //             text: "Disconnected";
+            //         }
+            //         connecting when Bluetooth.state == Bluetooth.connecting : {
+            //             text: "Connecting ...";
+            //         }
+            //         connected when Bluetooth.state == Bluetooth.connected : {
+            //             text: "Connected";
+            //         }
+                
+                
+            //     ]
+            // }
+            Rectangle {  }
         }
         
     }
+   
     
     
     

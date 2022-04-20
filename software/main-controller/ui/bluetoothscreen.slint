@@ -1,9 +1,17 @@
 import { SelectButton, Logo, Screens, Palette} from "./common.slint";
 
+
+
 export global Bluetooth := {
-    property <bool> connecting : false;
+    property<int> state : disconnected;
+
+    property <int> disconnected : 0;
+    property <int> connecting : 1;
+    property <int> connected : 2;
+    
   
 }
+
 
 export  BluetoothScreen := HorizontalLayout {
         
@@ -15,6 +23,8 @@ export  BluetoothScreen := HorizontalLayout {
         SelectButton { }
         SelectButton { }
     }
+
+   
     
     VerticalLayout { 
         //Logo {height : 30px;}
@@ -36,8 +46,22 @@ export  BluetoothScreen := HorizontalLayout {
                     Rectangle {  }
                     Image {
                         source: @image-url("../images/bluetooth_audio_black_24dp.svg");
-                        colorize: Bluetooth.connecting ? orange : Palette.highlight-color;
+                        //colorize: Bluetooth.state == Bluetooth.connecting ? orange : Palette.highlight-color;
                         width: source.width * 4 * 1px;
+
+                        states [
+                            disconnected when Bluetooth.state == Bluetooth.disconnected : {
+                                colorize: grey;
+                            }
+                            connecting when Bluetooth.state == Bluetooth.connecting : {
+                                colorize: orange;
+                            }
+                            connected when Bluetooth.state == Bluetooth.connected : {
+                                colorize: Palette.highlight-color;
+                            }
+                     
+                     
+                        ]
                     }
                     Rectangle {  }
                 }

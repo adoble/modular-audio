@@ -9,7 +9,8 @@ build = "build.rs"
 
 [dependencies]
 slint = "0.2.1"
-timer = "0.2.0"         # Need to REVIEW when using embedded
+#timer = "0.2.0"         # Need to REVIEW when using embedded
+#chrono = "0.2"          # Need to REVIEW when using embedded
 
 [build-dependencies]
 slint-build = "0.2.1"

@@ -45,19 +45,20 @@ export  BluetoothScreen := HorizontalLayout {
                 Row {
                     Rectangle {  }
                     Image {
-                        source: @image-url("../images/bluetooth_audio_black_24dp.svg");
+                        //source: @image-url("../images/bluetooth_audio_black_24dp.svg");
                         //colorize: Bluetooth.state == Bluetooth.connecting ? orange : Palette.highlight-color;
                         width: source.width * 4 * 1px;
+                        colorize: Palette.highlight-color;
 
                         states [
                             disconnected when Bluetooth.state == Bluetooth.disconnected : {
-                                colorize: grey;
+                                source: @image-url("../images/bluetooth_disabled_black_24dp.svg");
                             }
                             connecting when Bluetooth.state == Bluetooth.connecting : {
-                                colorize: orange;
+                                source: @image-url("../images/bluetooth_searching_black_24dp.svg");
                             }
                             connected when Bluetooth.state == Bluetooth.connected : {
-                                colorize: Palette.highlight-color;
+                                source: @image-url("../images/bluetooth_connected_black_24dp.svg");
                             }
                      
                      

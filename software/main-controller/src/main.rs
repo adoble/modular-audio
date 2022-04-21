@@ -39,7 +39,8 @@ fn main() {
                 );
             },
             //_ => (),
-            _ => println!("Another source"),
+            Some(2..=8) => println!("Source {}", selected_source.expect("Unknown source")),
+            _ => println!("Not a source"),
         }
     });
 

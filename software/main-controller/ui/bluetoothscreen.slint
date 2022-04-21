@@ -8,6 +8,9 @@ export global Bluetooth := {
     property <int> disconnected : 0;
     property <int> connecting : 1;
     property <int> connected : 2;
+
+    callback next-track();
+    callback prev-track();
     
   
 }
@@ -18,7 +21,12 @@ export  BluetoothScreen := HorizontalLayout {
     padding: 5px;
     VerticalLayout {
         spacing:10px;
-        SelectButton { text: "Previous"; image: @image-url("../images/skip_previous_black_24dp.svg"); }
+        SelectButton {  text: "Previous"; 
+                        image: @image-url("../images/skip_previous_black_24dp.svg"); 
+                        next-screen-id: Screens.bluetooth; 
+                        
+
+                    }
         SelectButton { }
         SelectButton { }
         SelectButton { }
@@ -91,10 +99,10 @@ export  BluetoothScreen := HorizontalLayout {
     VerticalLayout {
         spacing: 10px;
         //padding: 5px;
-        SelectButton { text: "Next"; image: @image-url("../images/skip_next_black_24dp.svg"); reversed-order: true;}
+        SelectButton { text: "Next"; image: @image-url("../images/skip_next_black_24dp.svg"); reversed-order: true; next-screen-id: Screens.bluetooth;}
         SelectButton {}
         SelectButton { }
-        SelectButton { text: "Back"; image:@image-url("../images/keyboard_return_black_24dp.svg"); reversed-order: true; }
+        SelectButton { text: "Back"; image:@image-url("../images/keyboard_return_black_24dp.svg"); reversed-order: true; next-screen-id: Screens.select-source;}
         // Following go into the "More ..." screen
         //SelectButton { text: "TOSLINK"; reversed-order: true;}
         //SelectButton { text: "Aux In"; reversed-order: true;}

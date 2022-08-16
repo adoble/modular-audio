@@ -2,7 +2,7 @@
 authors = ["Andrew Doble"]
 edition = "2021"
 readme = "README.md"
-name = "pico-i2s"
+name = "digital-signal-processor"
 version = "0.0.0"
 resolver = "2"
 

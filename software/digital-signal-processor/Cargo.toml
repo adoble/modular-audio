@@ -31,7 +31,6 @@ pio = "0.2.0"
 # no-std math 
 libm = "0.2.3"
 
-
 # If you're not going to use a Board Support Package you'll need these:
 # rp2040-hal = { version="0.4.0", features=["rt"] }
 # rp2040-boot2 = "0.2.0"

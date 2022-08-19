@@ -9,14 +9,27 @@
 #![no_main]
 
 use cortex_m_rt::entry;
-use hal::gpio::{FunctionPio0, Pin};
-use hal::pac;
-use hal::pio::PIOExt;
-use hal::Sio;
+// use hal::gpio::{FunctionPio0, Pin};
+// use hal::pac;
+// use hal::pio::PIOExt;
+// use hal::Sio;
 use panic_halt as _;
+
+
 
 use bsp::hal;
 use rp_pico as bsp;
+use hal::{
+    clocks::{init_clocks_and_plls, Clock},
+    pac,
+    sio::Sio,
+    watchdog::Watchdog,
+    gpio::{FunctionPio0, Pin},
+    pio::PIOExt,
+};
+
+
+use embedded_time::rate::*;
 
 //use libm::{round, sin};
 use libm::sin;
@@ -24,8 +37,27 @@ use libm::sin;
 #[entry]
 fn main() -> ! {
     let mut pac = pac::Peripherals::take().unwrap();
+    let mut watchdog = Watchdog::new(pac.WATCHDOG);
 
     let sio = Sio::new(pac.SIO);
+
+    // External high-speed crystal on the pico board is 12Mhz
+    //let external_xtal_freq_hz = 12_000_000u32;
+    // The default is to generate a 125 MHz system clock
+    let clocks = init_clocks_and_plls(
+        //external_xtal_freq_hz,
+        rp_pico::XOSC_CRYSTAL_FREQ,
+        pac.XOSC,
+        pac.CLOCKS,
+        pac.PLL_SYS,
+        pac.PLL_USB,
+        &mut pac.RESETS,
+        &mut watchdog,
+    )
+    .ok()
+    .unwrap();
+
+
     let pins = hal::gpio::Pins::new(
         pac.IO_BANK0,
         pac.PADS_BANK0,
@@ -104,8 +136,23 @@ fn main() -> ! {
 
     27.2 is the divisor for 44.1 kHz
     */
-    let div = 27.2 as f32; // TODO
+    //let div = 294.7  as f32; // TODO
                            //TODO can I find put the clock cycle programatically?
+
+
+    // Calculate the divisor for 44.1 KHz sample rate
+    //let sample_freq = Hertz::<u32>::from(44_100_u32.Hz());
+    // div = clocks.system_clock.freq() / sample_freq;
+
+    let sample_rate =  44100 as f32;
+    let sys_clock_freq = clocks.system_clock.freq().integer() as f32;
+    
+
+    let  mut div = (sys_clock_freq / (2. * sample_rate)) as f32;
+    //let div = 2834.5 / 2.0;
+    //let div = 1417.25;
+    //let div = 1400.0;
+    div = div / 16.;
 
     // Defines the bit depth
     let _bit_accuracy = 32u32;

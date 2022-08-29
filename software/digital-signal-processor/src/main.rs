@@ -58,18 +58,18 @@ fn main() -> ! {
     );
 
     // configure pins for Pio
-    let _pin_data: Pin<_, FunctionPio0> = pins.gpio0.into_mode();
-    let _pin_bclk: Pin<_, FunctionPio0> = pins.gpio1.into_mode();
-    let _pin_lrck: Pin<_, FunctionPio0> = pins.gpio2.into_mode();
+    let _pin_data: Pin<_, FunctionPio0> = pins.gpio15.into_mode();
+    let _pin_bclk: Pin<_, FunctionPio0> = pins.gpio13.into_mode();
+    let _pin_lrck: Pin<_, FunctionPio0> = pins.gpio14.into_mode();
     
 
     // PIN id for use inside of PIO
-    let pin_data_id = 0;
-    let pin_bck_id = 1; // BCK and LRCK must be contigouous
-    let pin_lrck_id = 2;
+    let pin_data_id = 15;
+    let pin_bck_id = 13; // BCK and LRCK must be contigouous
+    let pin_lrck_id = 14;
     let _pin25_led = 25; // TODO
 
-    // Define some simple PIO program.
+    // PIO program to outout I2S 
     let program_audio_i2s = pio_proc::pio_asm!(
         "
         ;

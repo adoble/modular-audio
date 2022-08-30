@@ -153,11 +153,14 @@ fn main() -> ! {
     // Only the first 16 bits are set. This will be replicated during the transfer later.
     //
     // For a  2 kHz signal we need to represent 1 period before we repeat. With a 44.1 khz  sample frequency
-    // we need to have (1 / 2kHZ) * 44100 samples = 22.05 samples.
+    // we need to have (1 / (2kHZ * 2 channels) ) * 44100 samples = 11.025 samples.
 
     // Acually generates a tone of 1  Khz
-    const N_SAMPLES: usize = 22;   // Tone of 1 kHz
-    
+    //const N_SAMPLES: usize = 22;   // Tone of 1 kHz
+    //const N_SAMPLES: usize = 44;   // Tone of 500 Hz
+    //const N_SAMPLES: usize = 11;   // Tone of 2 kHz
+    const N_SAMPLES: usize = 63;   // Tone of 339 kHz (F4) 
+
     
     
     //const N_SAMPLES: usize = 2200;
@@ -182,6 +185,7 @@ fn main() -> ! {
             // Write both left and write channels with the same data
             tx_data.write_u16_replicated(samples[sample_index] as u16);
             sample_index = (sample_index + 1) % N_SAMPLES;
+            
         }
     }
 }

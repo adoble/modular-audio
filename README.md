@@ -38,6 +38,8 @@ dab["DAB Radio"] -- I2S --- i2sm
 amp --- left{{Left}} --- left_spk((Left <br> Speaker)) 
 amp --- right{{Right}} --- right_spk((Right <br> Speaker)) 
 
+dsp -- I2S --- sw-dac[Sub-Woofer DAC] --- sw-line-out{{Sub-Woofer<br>Line-Out}} --- active-sw((Active<br>Sub-Woofer))
+
 
 subgraph rot_procs[Rotary Control <br> Processors]
     vol_proc[Volume <br> Processor];

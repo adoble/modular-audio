@@ -57,9 +57,11 @@ end
 vol_knob --- vol_proc --- main_ctrl;
 sel_knob --- sel_proc --- main_ctrl;
 sel_btns --- main_ctrl;
+
+
+click i2sm "https://github.com/adoble/modular-audio/tree/main/hardware/i2s-multiplexer" "Click to see sub-repository"
 ```
 
-click i2sm href "https://github.com/adoble/modular-audio/tree/main/hardware/i2s-multiplexer" "Click to see sub-repository"
 
 ### Power
 

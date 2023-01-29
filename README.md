@@ -10,7 +10,7 @@ An class D amplifier module that can select other digital sources (I2S, S/PDIF).
 graph LR;
 
 main_ctrl["Main Controller"] --- i2sm[I2SMultiplexor];
-main_ctrl --- display_driver[Display Driver] --- Display;
+main_ctrl -- 8080 Parallel Bus --- display_driver[Display Driver] --- Display;
 main_ctrl -- SPI --- dsp;
 main_ctrl -- SPI --- wifi["WiFi Co-Processor"]
 i2sm -- I2S --- dsp["Digital Signal <br> Processor"] -- I2S --- amp[Amplifier];

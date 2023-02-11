@@ -9,12 +9,15 @@ An class D amplifier module that can select other digital sources (I2S, S/PDIF).
 ```mermaid
 graph LR;
 
-main_ctrl["Main Controller"] --- i2sm[I2SMultiplexor];
+main_ctrl -- I2C --- illum_proc["Illumination <br> Processor"] --- lights((Lights))
+main_ctrl["Main Controller"] -- I2C --- i2sm[I2S-Multiplexor];
+wifi --- antenna1((Antenna <br> 1));
 main_ctrl -- 8080 Parallel Bus --- display_driver[Display Driver] --- Display;
-main_ctrl -- SPI --- dsp;
-main_ctrl -- SPI --- wifi["WiFi Co-Processor"]
+main_ctrl -- I2C --- dsp;
+main_ctrl -- SPI+2 --- wifi["WiFi Co-Processor"]
 i2sm -- I2S --- dsp["Digital Signal <br> Processor"] -- I2S --- amp[Amplifier];
 dsp -- I2S --- toslink_out_converter[TOSLINK<br>Converter] -- "S/PDIF" --- toslink_out{{TOSLINK <br> Out}};
+
 
 style dsp stroke-dasharray: 5 5;
 style toslink_out_converter stroke-dasharray: 5 5;
@@ -28,6 +31,7 @@ subgraph sources [Sources]
     aux{{Aux In}};
 end
 
+antenna2((Antenna <br> 2)) --- airlink;
 airlink["Airlink/Bluetooth <br> /Internet Radio <br> Module"] -- I2S --- i2sm
 cd -- I2S  --- i2sm;
 dvd -- "S/PDIF" --- spdif["S/PDIF Module"] -- I2S --- i2sm;
@@ -41,22 +45,20 @@ amp --- right{{Right}} --- right_spk((Right <br> Speaker))
 dsp -- I2S --- sw-dac[Sub-Woofer DAC] --- sw-line-out{{Sub-Woofer<br>Line-Out}} --- active-sw((Active<br>Sub-Woofer))
 
 
-subgraph rot_procs[Rotary Control <br> Processors]
-    vol_proc[Volume <br> Processor];
-    sel_proc[Select <br> Processor];
-    
-end
+vol_proc[Volume <br> Processor];
+sel_proc_left[Select <br> Processor <br> Left];
+sel_proc_right[Select <br> Processor <br> Right];
 
 subgraph controls[Controls]
     direction RL;
     vol_knob((Volume <br> Knob));
-    sel_knob((Select <br> Knob));
-    sel_btns((Selection <br> buttons ...))
+    sel_btns_left((Selection <br> Buttons Left))
+    sel_btns_right((Selection <br> Buttons Right))
 end
 
-vol_knob --- vol_proc --- main_ctrl;
-sel_knob --- sel_proc --- main_ctrl;
-sel_btns --- main_ctrl;
+vol_knob --- vol_proc -- I2C+1--- main_ctrl;
+sel_btns_left --- sel_proc_left -- I2C+1--- main_ctrl;
+sel_btns_right --- sel_proc_right -- I2C+1--- main_ctrl;
 
 
 click i2sm "https://github.com/adoble/modular-audio/tree/main/hardware/i2s-multiplexer" "Click to see sub-repository"

@@ -100,3 +100,20 @@ linkStyle 2 stroke:none
 
 <!-- ![System Diagram](./docs/img/Modular-Amplifier.png) -->
 
+## Functional Component Descriptions
+
+### Controller
+
+Work in Progress!
+
+The controller has the following tasks:
+
+* Drive the display using a 8080 (8-bit) parallel interface.
+* Receive input fron the volume control and adjust the volume over the DSP. 
+* Receive input from the button banks. These are used to interact with the display. 
+* Interface with an (Airlift) Wifi board over an extended SPI interface. This is used to download station lists and also 
+to control the internet radio module.
+
+Software is [here](./sofware/main-controller).
+
+Hardware is [here](./hardware/controller).

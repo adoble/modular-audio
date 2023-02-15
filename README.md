@@ -61,6 +61,7 @@ sel_btns_left --- sel_proc_left -- I2C+1--- main_ctrl;
 sel_btns_right --- sel_proc_right -- I2C+1--- main_ctrl;
 
 
+click main_ctrl "https://github.com/adoble/modular-audio/blob/main/README.md#controller"
 click i2sm "https://github.com/adoble/modular-audio/tree/main/hardware/i2s-multiplexer" "Click to see sub-repository"
 ```
 

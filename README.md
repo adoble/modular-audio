@@ -114,6 +114,6 @@ The controller has the following tasks:
 * Interface with an (Airlift) Wifi board over an extended SPI interface. This is used to download station lists and also 
 to control the internet radio module.
 
-Software is [here](./sofware/main-controller).
+Software is [here](../sofware/main-controller).
 
-Hardware is [here](./hardware/controller).
+Hardware is [here](../hardware/controller).

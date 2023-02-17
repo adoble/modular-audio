@@ -46,8 +46,8 @@ dsp -- I2S --- sw-dac[Sub-Woofer DAC] --- sw-line-out{{Sub-Woofer<br>Line-Out}} 
 
 
 vol_proc[Volume <br> Processor];
-sel_proc_left[Select <br> Processor <br> Left];
-sel_proc_right[Select <br> Processor <br> Right];
+sel_proc_left[Select <br> Buttons <br> Processor <br> Left];
+sel_proc_right[Select <br> Buttons <br> Processor <br> Right];
 
 subgraph controls[Controls]
     direction RL;

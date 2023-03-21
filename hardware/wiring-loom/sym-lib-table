@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "project")(type "KiCad")(uri "${KIPRJMOD}/project.kicad_sym")(options "")(descr ""))
+  (lib (name "i2s_multiplexor")(type "KiCad")(uri "${KIPRJMOD}/i2s_multiplexor.kicad_sym")(options "")(descr ""))
+)

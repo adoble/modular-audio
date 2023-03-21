@@ -1,16 +1,10 @@
-![Branch Abandoned](https://img.shields.io/badge/Project%20Status-Branch%20Abandoned-red)
-
+![Project Status: Work In Progress](https://img.shields.io/badge/project--status-work--in--progress-orange)
 
 
 # Modular Audio Project - Amplifier Module
 
 An class D amplifier module that can select other digital sources (I2S, S/PDIF).
 
-# Project Status
-
-THIS VERSION - USING A DISPLAY - HAS BEEN ABANDONED FOR THE TIME BEING. 
-
-Was unable to get the RA8875 based display to work so will adopt a simpler UI. 
 
 ## System Diagram
 
@@ -19,10 +13,10 @@ Was unable to get the RA8875 based display to work so will adopt a simpler UI.
 ```mermaid
 graph LR;
 
-main_ctrl -- I2C --- illum_proc["Illumination <br> Processor"] --- lights((Lights))
+main_ctrl -- I2C --- source_display_proc["Source <br> Display <br> Processor"] --- source_sel_display
 main_ctrl["Main Controller"] -- I2C --- i2sm[I2S-Multiplexor];
 wifi --- antenna1((Antenna <br> 1));
-main_ctrl -- 8080 Parallel Bus --- display_driver[Display Driver] --- Display;
+
 main_ctrl -- I2C --- dsp;
 main_ctrl -- SPI+2 --- wifi["WiFi Co-Processor"]
 i2sm -- I2S --- dsp["Digital Signal <br> Processor"] -- I2S --- amp[Amplifier];
@@ -39,6 +33,16 @@ subgraph sources [Sources]
     dvd{{DVD}};
     tos_link_in{{Toslink In}}
     aux{{Aux In}};
+    
+end
+
+subgraph source_sel_display [Source Selection Lights]
+    cd_source_selected((CD ))
+    dvd_source_selected((DVD))
+    bluetooth_source_selected((BT ))
+    wlan_source_selected((WLAN))
+    aux_source_selected((AUX))
+    dab_source_selected((DAB))
 end
 
 antenna2((Antenna <br> 2)) --- airlink;
@@ -56,19 +60,16 @@ dsp -- I2S --- sw-dac[Sub-Woofer DAC] --- sw-line-out{{Sub-Woofer<br>Line-Out}} 
 
 
 vol_proc[Volume <br> Processor];
-sel_proc_left[Select <br> Buttons <br> Processor <br> Left];
-sel_proc_right[Select <br> Buttons <br> Processor <br> Right];
+sel_source[Select <br> Source <br>];
 
 subgraph controls[Controls]
     direction RL;
     vol_knob((Volume <br> Knob));
-    sel_btns_left((Selection <br> Buttons Left))
-    sel_btns_right((Selection <br> Buttons Right))
+    sel_source_btn((Select <br> Source Button))
 end
 
 vol_knob --- vol_proc -- I2C+1--- main_ctrl;
-sel_btns_left --- sel_proc_left -- I2C+1--- main_ctrl;
-sel_btns_right --- sel_proc_right -- I2C+1--- main_ctrl;
+sel_source_btn --- sel_source -- I2C+1--- main_ctrl;
 
 
 click main_ctrl "https://github.com/adoble/modular-audio/blob/main/README.md#controller"
@@ -119,7 +120,7 @@ Work in Progress!
 
 The controller has the following tasks:
 
-* Drive the display using a 8080 (8-bit) parallel interface.
+* Select sources
 * Receive input fron the volume control and adjust the volume over the DSP. 
 * Receive input from the button banks. These are used to interact with the display. 
 * Interface with an (Airlift) Wifi board over an extended SPI interface. This is used to download station lists and also 

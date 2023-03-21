@@ -1,6 +1,16 @@
+![Branch Abandoned](https://img.shields.io/badge/Project%20Status-Branch%20Abandoned-red)
+
+
+
 # Modular Audio Project - Amplifier Module
 
 An class D amplifier module that can select other digital sources (I2S, S/PDIF).
+
+# Project Status
+
+THIS VERSION - USING A DISPLAY - HAS BEEN ABANDONED FOR THE TIME BEING. 
+
+Was unable to get the RA8875 based display to work so will adopt a simpler UI. 
 
 ## System Diagram
 

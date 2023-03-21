@@ -37,12 +37,13 @@ subgraph sources [Sources]
 end
 
 subgraph source_sel_display [Source Selection Lights]
-    cd_source_selected((CD ))
-    dvd_source_selected((DVD))
-    bluetooth_source_selected((BT ))
-    wlan_source_selected((WLAN))
-    aux_source_selected((AUX))
-    dab_source_selected((DAB))
+    direction RL;
+    cd_source_selected((CD ));
+    dvd_source_selected((DVD));
+    bluetooth_source_selected((BT ));
+    wlan_source_selected((WLAN));
+    aux_source_selected((AUX));
+    dab_source_selected((DAB));
 end
 
 antenna2((Antenna <br> 2)) --- airlink;

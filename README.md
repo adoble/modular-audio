@@ -13,7 +13,7 @@ An class D amplifier module that can select other digital sources (I2S, S/PDIF).
 ```mermaid
 graph LR;
 
-main_ctrl -- I2C --- source_display_proc["Source <br> Display <br> Processor"] --- source_sel_display
+
 main_ctrl["Main Controller"] -- I2C --- i2sm[I2S-Multiplexor];
 wifi --- antenna1((Antenna <br> 1));
 
@@ -37,13 +37,12 @@ subgraph sources [Sources]
 end
 
 subgraph source_sel_display [Source Selection Lights]
-    direction RL;
-    cd_source_selected((CD ));
-    dvd_source_selected((DVD));
-    bluetooth_source_selected((BT ));
-    wlan_source_selected((WLAN));
-    aux_source_selected((AUX));
-    dab_source_selected((DAB));
+    cd_source_selected((CD ))
+    dvd_source_selected((DVD))
+    bluetooth_source_selected((BT ))
+    wlan_source_selected((WLAN))
+    aux_source_selected((AUX))
+    dab_source_selected((DAB))
 end
 
 antenna2((Antenna <br> 2)) --- airlink;
@@ -64,11 +63,12 @@ vol_proc[Volume <br> Processor];
 sel_source[Select <br> Source <br>];
 
 subgraph controls[Controls]
-    direction RL;
-    vol_knob((Volume <br> Knob));
+    direction TB
     sel_source_btn((Select <br> Source Button))
+    vol_knob((Volume <br> Knob))
 end
 
+sel_source --- source_sel_display
 vol_knob --- vol_proc -- I2C+1--- main_ctrl;
 sel_source_btn --- sel_source -- I2C+1--- main_ctrl;
 
@@ -101,7 +101,7 @@ click i2sm "https://github.com/adoble/modular-audio/tree/main/hardware/i2s-multi
 graph LR;
 
 subgraph key[Key]
-    transducer((<small>Transducer<small>)) ---  pwr_net{<small>Power<br>Net<small>} --- module[<small>Module<small>] --- ext{{<small>External<br>Connection<small>}};
+    transducer((<small>Transducer<small>)) ---  pwr_net{<small>Power<br>Net<small>} --- module[<small>Hardware Module<small>] --- ext{{<small>External<br>Connection<small>}};
 end
 style key stroke-dasharray: 5 5, fill-opacity: 0;
 

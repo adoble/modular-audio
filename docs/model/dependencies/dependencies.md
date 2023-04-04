@@ -8,7 +8,7 @@ flowchart TB
     select_source(task::select_source)
     SelectSourceDriver[struct::SelectSourceDriver]
     Source[struct::Source]
-    I2CMultiplexer[struct::I2CMultiplexer]
+    I2SMultiplexer[struct::I2SMultiplexer]
 
     MCP23017{{ext:MCP23017}}
 
@@ -20,7 +20,7 @@ flowchart TB
     select_source --> SelectSourceDriver
     select_source --> Source
     SelectSourceDriver --> MCP23017
-    Source --> I2CMultiplexer
+    Source --> I2SMultiplexer
 
 
 

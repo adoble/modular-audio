@@ -9,9 +9,8 @@ use hal::digital::v2::OutputPin;
 const NUMBER_CHANNELS_SUPPORTED: u8 = 6;
 
 pub enum Error {
-    InvalidSourceChannel,
-    EnableError,
     InvalidChannel,
+    EnableError,
     AddressSetError,
 }
 
@@ -45,8 +44,8 @@ where
         Ok(i2s_multiplexer)
     }
 
-    pub fn set_source(&mut self, source_channel: u8) -> Result<(), Error> {
-        if source_channel >= NUMBER_CHANNELS_SUPPORTED {
+    pub fn set_channel(&mut self, channel: u8) -> Result<(), Error> {
+        if channel >= NUMBER_CHANNELS_SUPPORTED {
             return Err(Error::InvalidChannel);
         }
 
@@ -56,19 +55,19 @@ where
         self.a1_pin.set_low().map_err(|_| Error::AddressSetError)?;
         self.a2_pin.set_low().map_err(|_| Error::AddressSetError)?;
 
-        if source_channel & (1) != 0 {
+        if channel & (1) != 0 {
             self.a0_pin.set_high().map_err(|_| Error::AddressSetError)?;
         } else {
             self.a0_pin.set_low().map_err(|_| Error::AddressSetError)?;
         };
 
-        if source_channel & (1 << 1) != 0 {
+        if channel & (1 << 1) != 0 {
             self.a1_pin.set_high().map_err(|_| Error::AddressSetError)?;
         } else {
             self.a1_pin.set_low().map_err(|_| Error::AddressSetError)?;
         };
 
-        if source_channel & (1 << 2) != 0 {
+        if channel & (1 << 2) != 0 {
             self.a2_pin.set_high().map_err(|_| Error::AddressSetError)?;
         } else {
             self.a2_pin.set_low().map_err(|_| Error::AddressSetError)?;

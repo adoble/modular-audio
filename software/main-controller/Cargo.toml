@@ -34,7 +34,7 @@ mcp23017 = "1.0.0"
 fugit = "0.3.6"
 
 # The internal libraries used in the modular-audio project 
-source_select_driver = { path = "source_select_driver" }
+#source_select_driver = { path = "source_select_driver" }
 i2s-multiplexer = { path = "i2s-multiplexer" }
 
 

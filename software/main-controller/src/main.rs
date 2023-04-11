@@ -17,6 +17,8 @@ use defmt as _;
 use defmt_rtt as _;
 use panic_probe as _;
 
+mod source_select_driver;
+
 #[rtic::app(
     device = rp_pico::hal::pac, dispatchers = [TIMER_IRQ_1]
 )]
@@ -36,7 +38,7 @@ mod app {
     // Time handling traits:
     use fugit::RateExtU32;
 
-    use source_select_driver::{Source, SourceSelectDriver};
+    use crate::source_select_driver::{Source, SourceSelectDriver};
 
     #[monotonic(binds = TIMER_IRQ_0, default = true)]
     type Rp2040Mono = Rp2040Monotonic;

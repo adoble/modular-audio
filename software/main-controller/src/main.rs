@@ -17,6 +17,7 @@ use defmt as _;
 use defmt_rtt as _;
 use panic_probe as _;
 
+mod source;
 mod source_select_driver;
 
 #[rtic::app(
@@ -38,7 +39,8 @@ mod app {
     // Time handling traits:
     use fugit::RateExtU32;
 
-    use crate::source_select_driver::{Source, SourceSelectDriver};
+    use crate::source::Source;
+    use crate::source_select_driver::SourceSelectDriver;
 
     #[monotonic(binds = TIMER_IRQ_0, default = true)]
     type Rp2040Mono = Rp2040Monotonic;
@@ -57,7 +59,7 @@ mod app {
     #[shared]
     struct Shared {
         select_source_driver: &'static mut SourceSelectDriver<I2CBus>,
-        source_selected: Source, // TODO change this to a enum
+        source_selected: Source,
     }
 
     // Local resources

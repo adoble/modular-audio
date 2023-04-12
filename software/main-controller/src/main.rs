@@ -18,6 +18,7 @@ use defmt_rtt as _;
 use panic_probe as _;
 
 mod source;
+mod source_channel_map;
 mod source_select_driver;
 
 #[rtic::app(
@@ -39,7 +40,10 @@ mod app {
     // Time handling traits:
     use fugit::RateExtU32;
 
+    use enum_map::{enum_map, EnumMap};
+
     use crate::source::Source;
+    use crate::source_channel_map::SourceChannelMap; //TODO delete this as using the external crate enum_map instead.
     use crate::source_select_driver::SourceSelectDriver;
 
     #[monotonic(binds = TIMER_IRQ_0, default = true)]
@@ -133,6 +137,18 @@ mod app {
             .select_source_driver_ctx
             .write(select_source_driver);
 
+        // Set up the source channel mapping
+        let source_channel_map = enum_map! {
+            Source::Bluetooth => 2,
+            Source::WirelessLAN => 2,
+            Source::CD => 4,
+            Source::InternetRadio => 2,
+            Source::Aux => 0,
+            Source::DABRadio => 1,
+
+        };
+
+        //TO DO  - add the drivers and source channel map to Source
         // Activate the initial source
         let initial_source = Source::init();
         initial_source.activate();

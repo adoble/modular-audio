@@ -33,6 +33,9 @@ mcp23017 = "1.0.0"
 # Time handling traits
 fugit = "0.3.6"
 
+# Used to map source to channel
+enum-map = "2.5.0"
+
 # The internal libraries used in the modular-audio project 
 #source_select_driver = { path = "source_select_driver" }
 i2s-multiplexer = { path = "i2s-multiplexer" }

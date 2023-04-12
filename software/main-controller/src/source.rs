@@ -1,6 +1,6 @@
-use defmt;
+use enum_map::{Enum, EnumMap};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Enum)]
 pub enum Source {
     Bluetooth = 0,
     WirelessLAN = 1,

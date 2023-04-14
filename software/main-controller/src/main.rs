@@ -18,7 +18,7 @@ use defmt_rtt as _;
 use panic_probe as _;
 
 mod source;
-mod source_channel_map;
+//mod source_channel_map;
 mod source_select_driver;
 
 #[rtic::app(
@@ -42,8 +42,8 @@ mod app {
 
     use enum_map::{enum_map, EnumMap};
 
-    use crate::source::Source;
-    use crate::source_channel_map::SourceChannelMap; //TODO delete this as using the external crate enum_map instead.
+    use crate::source::{Source, SourceType};
+    //use crate::source_channel_map::SourceChannelMap; //TODO delete this as using the external crate enum_map instead.
     use crate::source_select_driver::SourceSelectDriver;
 
     #[monotonic(binds = TIMER_IRQ_0, default = true)]
@@ -139,18 +139,18 @@ mod app {
 
         // Set up the source channel mapping
         let source_channel_map = enum_map! {
-            Source::Bluetooth => 2,
-            Source::WirelessLAN => 2,
-            Source::CD => 4,
-            Source::InternetRadio => 2,
-            Source::Aux => 0,
-            Source::DABRadio => 1,
+            SourceType::Bluetooth => 2,
+            SourceType::WirelessLAN => 2,
+            SourceType::CD => 4,
+            SourceType::InternetRadio => 2,
+            SourceType::Aux => 0,
+            SourceType::DABRadio => 1,
 
         };
 
         //TO DO  - add the drivers and source channel map to Source
         // Activate the initial source
-        let initial_source = Source::init();
+        let initial_source = Source::new();
         initial_source.activate();
 
         (

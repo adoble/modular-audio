@@ -133,16 +133,16 @@ where
         if pressed {
             // Clear the current source led
             self.mcp23017_driver
-                .digital_write(current_source as u8, false)
-                .map_err(|_| Error::ClearLEDError(current_source as u8))?;
+                .digital_write(current_source.as_u8(), false)
+                .map_err(|_| Error::ClearLEDError(current_source.as_u8()))?;
 
             // Update the source
             let new_source = current_source.next();
 
             // Now set the LED associated with the source
             self.mcp23017_driver
-                .digital_write(new_source as u8, true)
-                .map_err(|_| Error::SetLEDError(new_source as u8))?;
+                .digital_write(new_source.as_u8(), true)
+                .map_err(|_| Error::SetLEDError(new_source.as_u8()))?;
             Ok(Some(new_source))
         } else {
             Ok(None)

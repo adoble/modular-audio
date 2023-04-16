@@ -4,12 +4,12 @@ use crate::sources::Source;
 
 //const NUMBER_SOURCES_SUPPORTED: u8 = 6;
 
-pub struct AllSources<'a> {
-    sources: [Option<&'a dyn Source>; 6],
+pub struct AllSources {
+    sources: [Option<dyn Source>; 6],
     selected: usize,
 }
 
-impl<'a> AllSources<'a> {
+impl AllSources {
     /// Constructs a new `AllSources` object with all source entries initialized to `None` values.
     ///  The first entry is selected.
     pub fn new() -> Self {
@@ -29,7 +29,7 @@ impl<'a> AllSources<'a> {
         }
 
         match self.sources[(self.selected + 1) % 6] {
-            Some(source) => Some(source),
+            Some(source) => Some(*source),
             None => self.next(),
         }
     }
@@ -45,15 +45,15 @@ impl<'a> AllSources<'a> {
     }
 }
 
-impl<'a> Index<usize> for AllSources<'a> {
-    type Output = Option<&'a dyn Source>; // The type of the array value
+impl Index<usize> for AllSources {
+    type Output = Option<dyn Source>; // The type of the array value
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.sources[index]
     }
 }
 
-impl<'a> IndexMut<usize> for AllSources<'a> {
+impl IndexMut<usize> for AllSources {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.sources[index]
     }

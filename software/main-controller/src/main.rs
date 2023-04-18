@@ -11,13 +11,16 @@
 
 #![no_std]
 #![no_main]
+#![feature(default_alloc_error_handler)]
 
 //use defmt::*;
 use defmt as _;
 use defmt_rtt as _;
 use panic_probe as _;
 
-mod source;
+mod all_sources;
+mod sources;
+
 //mod source_channel_map;
 mod source_select_driver;
 
@@ -33,6 +36,14 @@ mod app {
     };
     use rp_pico::XOSC_CRYSTAL_FREQ;
 
+    use crate::source_select_driver::SourceSelectDriver;
+
+    use crate::sources::{Source, SourceError};
+
+    use crate::sources::{SourceBluetooth, SourceWirelessLan};
+
+    use crate::all_sources::AllSources;
+
     use rp2040_monotonic::{fugit::ExtU64, Rp2040Monotonic};
 
     use core::mem::MaybeUninit;
@@ -40,11 +51,16 @@ mod app {
     // Time handling traits:
     use fugit::RateExtU32;
 
-    use enum_map::{enum_map, EnumMap};
+    //use enum_map::{enum_map, EnumMap};
+    // Need to define an allocator to be ablke to use smart pointers such as Box
+    extern crate alloc;
 
-    use crate::source::{Source, SourceType};
-    //use crate::source_channel_map::SourceChannelMap; //TODO delete this as using the external crate enum_map instead.
-    use crate::source_select_driver::SourceSelectDriver;
+    use embedded_alloc::Heap;
+    #[global_allocator]
+    static HEAP: Heap = Heap::empty();
+
+    use alloc::boxed::Box;
+    use alloc::vec::Vec;
 
     #[monotonic(binds = TIMER_IRQ_0, default = true)]
     type Rp2040Mono = Rp2040Monotonic;
@@ -63,7 +79,8 @@ mod app {
     #[shared]
     struct Shared {
         select_source_driver: &'static mut SourceSelectDriver<I2CBus>,
-        source_selected: Source,
+        sources: &'static mut crate::all_sources::AllSources,
+        //source_selected: Source<SourceActivation>,
     }
 
     // Local resources
@@ -78,7 +95,8 @@ mod app {
         // Task local initialized resources are static as per documentation.
         // Here we use MaybeUninit to allow for initialization in init()
         // This enables its usage in driver initialization
-        select_source_driver_ctx: MaybeUninit<SourceSelectDriver<I2CBus>> = MaybeUninit::uninit()
+        select_source_driver_ctx: MaybeUninit<SourceSelectDriver<I2CBus>> = MaybeUninit::uninit(),
+        sources_ctx: MaybeUninit<AllSources> = MaybeUninit::uninit(),
     ])]
     fn init(mut ctx: init::Context) -> (Shared, Local, init::Monotonics) {
         defmt::info!("Task init");
@@ -105,6 +123,15 @@ mod app {
             sio.gpio_bank0,
             &mut ctx.device.RESETS,
         );
+
+        // Initialise the allocator.
+        // TODO guessing a healp size of 1024 as this used in examples. Need to check.
+        {
+            use core::mem::MaybeUninit;
+            const HEAP_SIZE: usize = 1024;
+            static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
+            unsafe { HEAP.init(HEAP_MEM.as_ptr() as usize, HEAP_SIZE) }
+        }
 
         // Setup an interrupt on pin 1 to register a button press
         // This is configured as an input pin so that the value can be read.
@@ -138,25 +165,40 @@ mod app {
             .write(select_source_driver);
 
         // Set up the source channel mapping
-        let source_channel_map = enum_map! {
-            SourceType::Bluetooth => 2,
-            SourceType::WirelessLAN => 2,
-            SourceType::CD => 4,
-            SourceType::InternetRadio => 2,
-            SourceType::Aux => 0,
-            SourceType::DABRadio => 1,
+        // let source_channel_map = enum_map! {
+        //     SourceType::Bluetooth => 2,
+        //     SourceType::WirelessLAN => 2,
+        //     SourceType::CD => 4,
+        //     SourceType::InternetRadio => 2,
+        //     SourceType::Aux => 0,
+        //     SourceType::DABRadio => 1,
 
-        };
+        // };
 
-        //TO DO  - add the drivers and source channel map to Source
+        // TODO have a seperate validate() routine that coudl be in the trait?
+        let source_bluetooth =
+            SourceBluetooth::new(2).unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
+        let source_wireless_lan = SourceWirelessLan::new(2)
+            .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
+
+        let mut sources = crate::all_sources::AllSources::new();
+
+        sources[0] = Box::new(source_bluetooth);
+        sources[1] = Box::new(source_wireless_lan);
+        // sources[2] = sources::SourceCd::new(4);
+        // sources[3] = sources::SourceInternetRadio::new(2);
+        // sources[4] = sources::SourceAux::new(0);
+        // sources[5] = sources::SourceDabRadio::new(1);
+
+        let sources_initialised: &'static mut _ = ctx.local.sources_ctx.write(sources);
+
         // Activate the initial source
-        let initial_source = Source::new();
-        initial_source.activate();
+        sources_initialised[0].activate();
 
         (
             Shared {
                 select_source_driver: select_source_driver_initialised,
-                source_selected: initial_source,
+                sources: sources_initialised,
             },
             Local {
                 source_change_interrupt_pin,
@@ -196,20 +238,21 @@ mod app {
 
     /// RTIC task to select a source.
     /// The selected source is stored as a shared resource.
-    #[task(shared = [source_selected, select_source_driver])]
+    #[task(shared = [sources, select_source_driver])]
     fn select_source(ctx: select_source::Context) {
         defmt::info!("Task select_source");
 
         let select_source_driver = ctx.shared.select_source_driver;
-        let source_selected = ctx.shared.source_selected;
+        let sources = ctx.shared.sources;
+        //let source_selected = sources.selected();
 
-        (select_source_driver, source_selected).lock(|driver, source_selected| {
-            if let Some(new_source) = driver.changed_source(*source_selected).unwrap_or_else(|_| {
+        (select_source_driver, sources).lock(|driver, sources| {
+            if let Some(new_source) = driver.changed_source(sources).unwrap_or_else(|_| {
                 // defmt::panic!("Unable to determine changed source: error {:?}", err)  // TODO provide some formatting on the error type
                 defmt::panic!("Unable to determine changed source")
             }) {
-                *source_selected = new_source;
-                new_source.activate();
+                //*sources.select(new_source);
+                new_source.activate(); //TODO maybe need a deactivate before doing the activate
             }
         });
     }

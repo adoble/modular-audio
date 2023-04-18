@@ -27,6 +27,9 @@ cortex-m-rtic = "1.1.4"
 #rp2040-monotonic = "1.2.0"
 rp2040-monotonic = "1.2"
 
+# Required for healp allocation so that smart pointers such as Box can be used.
+embedded-alloc = "0.5.0"
+
 # The pin expander used for the source display controller
 mcp23017 = "1.0.0"
 

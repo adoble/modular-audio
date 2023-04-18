@@ -4,13 +4,17 @@ use embedded_hal as hal;
 
 use hal::blocking::i2c::{Write, WriteRead};
 
+extern crate alloc;
+use alloc::boxed::Box;
+
 // The driver for the MCP23017 chip used on the board
 use mcp23017::{Polarity, MCP23017};
 
 use defmt as _;
 use panic_probe as _;
 
-use crate::source::Source;
+use crate::all_sources::AllSources;
+use crate::sources::{Source, SourceError};
 
 // Defines errors being issued by te MCP23017 chip on the source select board
 #[derive(Debug, Copy, Clone)]
@@ -29,7 +33,7 @@ pub enum MCP23017Errors {
 pub enum Error {
     MCP23017Error(MCP23017Errors),
     ClearLEDError(u8),
-    SetLEDError(u8),
+    SetLEDError,
     /// Interrupt pin not found
     InterruptPinError,
 }
@@ -38,6 +42,7 @@ const BASE_ADDRESS: u8 = 0x20;
 const NUMBER_CHANNELS_SUPPORTED: u8 = 6;
 
 #[derive(Clone, Copy, Debug)]
+// TODO Change name to SourceSelector. Its not really a driver as domain info such as Source is used.
 pub struct SourceSelectDriver<I2C: Write + WriteRead>
 where
     I2C: WriteRead + Write,
@@ -95,19 +100,26 @@ where
 
     /// Example
     /// ```
-    ///   match select_source_driver.changed_source(current_source).unwrap() {
+    ///   match select_source_driver.changed_source(&sources).unwrap() {
     ///     Some(source) => source.activate(),
     ///     None => ();   
     ///   }
     /// ```
     /// Alternatively:
     /// ```
-    ///   if let Some(new_source) = select_source_driver.changed_source(current_source).unwrap() {
+    ///   if let Some(new_source) = select_source_driver.changed_source(&sources).unwrap() {
     ///     new_source.activate()
     ///   }
     /// ```
     ///
-    pub fn changed_source(&mut self, current_source: Source) -> Result<Option<Source>, Error> {
+    // pub fn changed_source<A: SourceActivation>(
+    //     &mut self,
+    //     current_source: Source<A>,
+    // ) -> Result<Option<Source<A>>, Error> {
+    pub fn changed_source<'a>(
+        &mut self,
+        sources: &'a mut AllSources, //TODO the selected source is changed. This is a side effect and maybe a code smell
+    ) -> Result<Option<&'a Box<dyn Source>>, Error> {
         // TODO
 
         // Clear the interrupt pin on the MCP23017
@@ -131,26 +143,37 @@ where
         let pressed = !state;
 
         if pressed {
-            // Clear the current source led
-            self.mcp23017_driver
-                .digital_write(current_source.as_u8(), false)
-                .map_err(|_| Error::ClearLEDError(current_source.as_u8()))?;
+            // Get the pin number of the currents source. The circuit is such that
+            // the pin number corresponds to the ordinal position of the source in
+            // sources.
+            if let Some(led_pin_number) = sources.selected_index() {
+                // Clear the current source led
+                self.mcp23017_driver
+                    .digital_write(led_pin_number, false)
+                    .map_err(|_| Error::ClearLEDError(led_pin_number))?;
 
-            // Update the source
-            let new_source = current_source.next();
-
-            // Now set the LED associated with the source
-            self.mcp23017_driver
-                .digital_write(new_source.as_u8(), true)
-                .map_err(|_| Error::SetLEDError(new_source.as_u8()))?;
-            Ok(Some(new_source))
+                // Update the source
+                //let new_source = current_source.next();
+                let new_source = sources.next();
+                if let Some(new_source_index) = sources.selected_index() {
+                    // Now set the LED associated with the source
+                    self.mcp23017_driver
+                        .digital_write(new_source_index, true)
+                        .map_err(|_| Error::SetLEDError)?;
+                    Ok(new_source)
+                } else {
+                    Ok(None)
+                }
+            } else {
+                Ok(None)
+            }
         } else {
             Ok(None)
         }
     }
 
-    pub fn set_source(&self, source: Source) -> Result<Source, Error> {
-        // TODO
-        Ok(source)
-    }
+    // pub fn set_source<A: SourceActivation>(&self, source: Source<A>) -> Result<Source<A>, Error> {
+    //     // TODO
+    //     Ok(source)
+    // }
 }

@@ -1,4 +1,5 @@
 const NUMBER_SUPPORTED_CHANNELS: u8 = 6;
+
 pub trait Source {
     fn activate(&self) -> Result<(), SourceError>;
 
@@ -21,4 +22,5 @@ pub enum SourceError {
     IncorrectChannel,
     ActivationFailed,
     NotImplemented,
+    Creation,
 }

@@ -39,7 +39,7 @@ mod app {
 
     use crate::source_select_driver::SourceSelectDriver;
 
-    use crate::source::{Source, SourceError};
+    use crate::source::SourceError;
 
     use crate::source::{DisplayPosition, SourceBluetooth, SourceCd, SourceWirelessLan};
 
@@ -63,7 +63,6 @@ mod app {
     static HEAP: Heap = Heap::empty();
 
     use alloc::boxed::Box;
-    use alloc::vec::Vec;
 
     #[monotonic(binds = TIMER_IRQ_0, default = true)]
     type Rp2040Mono = Rp2040Monotonic;
@@ -208,7 +207,7 @@ mod app {
 
         // Activate the initial source
         let selected_source = sources_selection_iterator_initialised.next();
-        if let Err(err) = match selected_source {
+        if let Err(_) = match selected_source {
             Some(source) => source.activate(),
 
             None => Err(SourceError::ActivationFailed),
@@ -274,8 +273,10 @@ mod app {
                 // defmt::panic!("Unable to determine changed source: error {:?}", err)  // TODO provide some formatting on the error type
                 defmt::panic!("Unable to determine changed source")
             }) {
-                //*sources.select(new_source);
-                new_source.activate(); //TODO maybe need a deactivate before doing the activate
+                new_source
+                    .activate()
+                    .unwrap_or_else(|_| defmt::panic!("Unable to activate new source"));
+                //TODO maybe need a deactivate before doing the activate
             }
         });
     }

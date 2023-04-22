@@ -7,16 +7,14 @@ use hal::blocking::i2c::{Write, WriteRead};
 extern crate alloc;
 use alloc::boxed::Box;
 
-use core::iter::Peekable;
-
 // The driver for the MCP23017 chip used on the board
 use mcp23017::{Polarity, MCP23017};
 
 use defmt as _;
 use panic_probe as _;
 
-use crate::source::{Source, SourceError};
-use crate::sources::{SourceInterator, Sources};
+use crate::source::Source;
+use crate::sources::SourceInterator;
 
 // Defines errors being issued by te MCP23017 chip on the source select board
 #[derive(Debug, Copy, Clone)]

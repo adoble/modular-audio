@@ -18,8 +18,8 @@ use defmt as _;
 use defmt_rtt as _;
 use panic_probe as _;
 
-mod all_sources;
-mod source_iterator;
+mod channel;
+mod source;
 mod sources;
 
 //mod source_channel_map;
@@ -39,11 +39,13 @@ mod app {
 
     use crate::source_select_driver::SourceSelectDriver;
 
-    use crate::sources::{Source, SourceError};
+    use crate::source::{Source, SourceError};
 
-    use crate::sources::{SourceBluetooth, SourceWirelessLan};
+    use crate::source::{DisplayPosition, SourceBluetooth, SourceCd, SourceWirelessLan};
 
-    use crate::all_sources::AllSources;
+    use crate::sources::{SourceInterator, Sources};
+
+    use crate::channel::Channel;
 
     use rp2040_monotonic::{fugit::ExtU64, Rp2040Monotonic};
 
@@ -80,8 +82,8 @@ mod app {
     #[shared]
     struct Shared {
         select_source_driver: &'static mut SourceSelectDriver<I2CBus>,
-        sources: &'static mut crate::all_sources::AllSources,
-        //source_selected: Source<SourceActivation>,
+        sources: &'static mut crate::sources::Sources,
+        source_selection_iterator: &'static mut SourceInterator<'static>,
     }
 
     // Local resources
@@ -96,8 +98,10 @@ mod app {
         // Task local initialized resources are static as per documentation.
         // Here we use MaybeUninit to allow for initialization in init()
         // This enables its usage in driver initialization
+        // TODO do we need this? The new documentation is not clear
         select_source_driver_ctx: MaybeUninit<SourceSelectDriver<I2CBus>> = MaybeUninit::uninit(),
-        sources_ctx: MaybeUninit<AllSources> = MaybeUninit::uninit(),
+        sources_ctx: MaybeUninit<Sources> = MaybeUninit::uninit(),
+        source_selection_iterator_ctx : MaybeUninit<SourceInterator<'static>> = MaybeUninit::uninit(),
     ])]
     fn init(mut ctx: init::Context) -> (Shared, Local, init::Monotonics) {
         defmt::info!("Task init");
@@ -176,32 +180,47 @@ mod app {
 
         // };
 
-        // TODO have a seperate validate() routine that coudl be in the trait?
-        let source_bluetooth =
-            SourceBluetooth::new(2).unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
-        let source_wireless_lan = SourceWirelessLan::new(2)
+        let source_bluetooth = SourceBluetooth::new(Channel(2), DisplayPosition(0))
+            .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
+        let source_wlan = SourceWirelessLan::new(Channel(2), DisplayPosition(1))
+            .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
+        let source_cd = SourceCd::new(Channel(4), DisplayPosition(3))
             .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
 
-        let mut sources = crate::all_sources::AllSources::new();
+        let mut sources = crate::sources::Sources::new();
 
-        sources[0] = Box::new(source_bluetooth);
-        sources[1] = Box::new(source_wireless_lan);
-        // sources[2] = sources::SourceCd::new(4);
+        sources.add(Box::new(source_bluetooth));
+        sources.add(Box::new(source_wlan));
+        sources.add(Box::new(source_cd));
+
         // sources[3] = sources::SourceInternetRadio::new(2);
         // sources[4] = sources::SourceAux::new(0);
         // sources[5] = sources::SourceDabRadio::new(1);
 
         let sources_initialised: &'static mut _ = ctx.local.sources_ctx.write(sources);
 
-        let sources_iter = sources_initialised.into_iter();
+        //let mut sources_selection_iterator = sources_initialised.into_iter();
+        let mut sources_selection_iterator = sources_initialised.into_iter();
+        let sources_selection_iterator_initialised: &'static mut _ = ctx
+            .local
+            .source_selection_iterator_ctx
+            .write(sources_selection_iterator);
 
         // Activate the initial source
-        sources_initialised[0].activate();
+        let selected_source = sources_selection_iterator_initialised.next();
+        if let Err(err) = match selected_source {
+            Some(source) => source.activate(),
+
+            None => Err(SourceError::ActivationFailed),
+        } {
+            defmt::error!("Cannot activate the initial source")
+        }
 
         (
             Shared {
                 select_source_driver: select_source_driver_initialised,
                 sources: sources_initialised,
+                source_selection_iterator: sources_selection_iterator_initialised,
             },
             Local {
                 source_change_interrupt_pin,
@@ -241,16 +260,17 @@ mod app {
 
     /// RTIC task to select a source.
     /// The selected source is stored as a shared resource.
-    #[task(shared = [sources, select_source_driver])]
+    #[task(shared = [select_source_driver, source_selection_iterator])]
     fn select_source(ctx: select_source::Context) {
         defmt::info!("Task select_source");
 
         let select_source_driver = ctx.shared.select_source_driver;
-        let sources = ctx.shared.sources;
+
+        let source_selection_iterator = ctx.shared.source_selection_iterator;
         //let source_selected = sources.selected();
 
-        (select_source_driver, sources).lock(|driver, sources| {
-            if let Some(new_source) = driver.changed_source(sources).unwrap_or_else(|_| {
+        (select_source_driver, source_selection_iterator).lock(|driver, sources_iterator| {
+            if let Some(new_source) = driver.changed_source(sources_iterator).unwrap_or_else(|_| {
                 // defmt::panic!("Unable to determine changed source: error {:?}", err)  // TODO provide some formatting on the error type
                 defmt::panic!("Unable to determine changed source")
             }) {

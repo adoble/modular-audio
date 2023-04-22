@@ -7,14 +7,16 @@ use hal::blocking::i2c::{Write, WriteRead};
 extern crate alloc;
 use alloc::boxed::Box;
 
+use core::iter::Peekable;
+
 // The driver for the MCP23017 chip used on the board
 use mcp23017::{Polarity, MCP23017};
 
 use defmt as _;
 use panic_probe as _;
 
-use crate::all_sources::AllSources;
-use crate::sources::{Source, SourceError};
+use crate::source::{Source, SourceError};
+use crate::sources::{SourceInterator, Sources};
 
 // Defines errors being issued by te MCP23017 chip on the source select board
 #[derive(Debug, Copy, Clone)]
@@ -98,7 +100,7 @@ where
         })
     }
 
-    /// Example
+    /// Example   TODO update this comment
     /// ```
     ///   match select_source_driver.changed_source(&sources).unwrap() {
     ///     Some(source) => source.activate(),
@@ -118,7 +120,7 @@ where
     // ) -> Result<Option<Source<A>>, Error> {
     pub fn changed_source<'a>(
         &mut self,
-        sources: &'a mut AllSources, //TODO the selected source is changed. This is a side effect and maybe a code smell
+        sources_iter: &'a mut SourceInterator,
     ) -> Result<Option<&'a Box<dyn Source>>, Error> {
         // TODO
 
@@ -143,10 +145,12 @@ where
         let pressed = !state;
 
         if pressed {
-            // Get the pin number of the currents source. The circuit is such that
-            // the pin number corresponds to the ordinal position of the source in
+            // Get the pin number of the current source. The circuit is such that
+            // the pin number corresponds to display position of the source in
             // sources.
-            if let Some(led_pin_number) = sources.selected_index() {
+
+            if let Some(current_source) = sources_iter.peek() {
+                let led_pin_number: u8 = current_source.display_position().into();
                 // Clear the current source led
                 self.mcp23017_driver
                     .digital_write(led_pin_number, false)
@@ -154,13 +158,15 @@ where
 
                 // Update the source
                 //let new_source = current_source.next();
-                let new_source = sources.next();
-                if let Some(new_source_index) = sources.selected_index() {
+                // let new_source = sources_iter.next();
+                // if let Some(new_source_index) = sources.selected_index() {
+                if let Some(new_source) = sources_iter.next() {
+                    let led_pin_number: u8 = new_source.display_position().into();
                     // Now set the LED associated with the source
                     self.mcp23017_driver
-                        .digital_write(new_source_index, true)
+                        .digital_write(led_pin_number, true)
                         .map_err(|_| Error::SetLEDError)?;
-                    Ok(new_source)
+                    Ok(Some(new_source))
                 } else {
                     Ok(None)
                 }

@@ -82,7 +82,7 @@ mod app {
     #[shared]
     struct Shared {
         select_source_driver: &'static mut SourceSelectDriver<I2CBus>,
-        sources: &'static mut crate::sources::Sources,
+        //sources: &'static mut crate::sources::Sources,
         source_selection_iterator: &'static mut SourceInterator<'static>,
     }
 
@@ -200,7 +200,7 @@ mod app {
         let sources_initialised: &'static mut _ = ctx.local.sources_ctx.write(sources);
 
         //let mut sources_selection_iterator = sources_initialised.into_iter();
-        let mut sources_selection_iterator = sources_initialised.into_iter();
+        let sources_selection_iterator = sources_initialised.into_iter();
         let sources_selection_iterator_initialised: &'static mut _ = ctx
             .local
             .source_selection_iterator_ctx
@@ -219,7 +219,7 @@ mod app {
         (
             Shared {
                 select_source_driver: select_source_driver_initialised,
-                sources: sources_initialised,
+                //sources: sources_initialised,
                 source_selection_iterator: sources_selection_iterator_initialised,
             },
             Local {

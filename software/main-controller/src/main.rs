@@ -81,7 +81,6 @@ mod app {
     #[shared]
     struct Shared {
         select_source_driver: &'static mut SourceSelectDriver<I2CBus>,
-        //sources: &'static mut crate::sources::Sources,
         source_selection_iterator: &'static mut SourceInterator<'static>,
     }
 
@@ -183,7 +182,7 @@ mod app {
             .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
         let source_wlan = SourceWirelessLan::new(Channel(2), DisplayPosition(1))
             .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
-        let source_cd = SourceCd::new(Channel(4), DisplayPosition(3))
+        let source_cd = SourceCd::new(Channel(4), DisplayPosition(2))
             .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
 
         let mut sources = crate::sources::Sources::new();
@@ -196,6 +195,7 @@ mod app {
         // sources[4] = sources::SourceAux::new(0);
         // sources[5] = sources::SourceDabRadio::new(1);
 
+        //TODO As sources does not go into Shared is this type of initialisation neccessary?
         let sources_initialised: &'static mut _ = ctx.local.sources_ctx.write(sources);
 
         //let mut sources_selection_iterator = sources_initialised.into_iter();
@@ -218,7 +218,6 @@ mod app {
         (
             Shared {
                 select_source_driver: select_source_driver_initialised,
-                //sources: sources_initialised,
                 source_selection_iterator: sources_selection_iterator_initialised,
             },
             Local {
@@ -271,7 +270,7 @@ mod app {
         (select_source_driver, source_selection_iterator).lock(|driver, sources_iterator| {
             if let Some(new_source) = driver.changed_source(sources_iterator).unwrap_or_else(|_| {
                 // defmt::panic!("Unable to determine changed source: error {:?}", err)  // TODO provide some formatting on the error type
-                defmt::panic!("Unable to determine changed source")
+                defmt::panic!("Unable to determine changed source");
             }) {
                 new_source
                     .activate()

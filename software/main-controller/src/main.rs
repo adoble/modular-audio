@@ -19,6 +19,7 @@ use defmt_rtt as _;
 use panic_probe as _;
 
 mod all_sources;
+mod source_iterator;
 mod sources;
 
 //mod source_channel_map;
@@ -191,6 +192,8 @@ mod app {
         // sources[5] = sources::SourceDabRadio::new(1);
 
         let sources_initialised: &'static mut _ = ctx.local.sources_ctx.write(sources);
+
+        let sources_iter = sources_initialised.into_iter();
 
         // Activate the initial source
         sources_initialised[0].activate();

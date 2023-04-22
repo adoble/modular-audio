@@ -50,6 +50,10 @@ impl AllSources {
         }
     }
 
+    pub fn len(&self) -> u8 {
+        self.sources.len() as u8
+    }
+
     pub fn selected(&self) -> Option<&Box<dyn Source>> {
         match self.selected {
             None => None,

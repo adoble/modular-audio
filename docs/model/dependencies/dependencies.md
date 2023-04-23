@@ -1,29 +1,39 @@
 # Dependencies
 
 ```mermaid
-
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TB
-    %% ----- Components -----%%
+    %% ----- tasks -----
     idle(task::idle)
     init(task::init)
     select_source(task::select_source)
     select_source_nfc(task::select_source_nfc)
+    change_volume(task::change_volume)
+    
+    %% ---- structs & traits ------- 
     SelectSourceDriver[struct::SelectSourceDriver]:::struct
     Sources[struct::Sources]:::struct
+    SourceIterator[struct::SourceIterator]:::struct
     Source[trait::Source]:::trait
     I2SMultiplexer[struct::I2SMultiplexer]:::struct
     Up2StreamMini[struct::Up2StreamMini]:::struct
     nfc[struct::Nfc]:::struct
-    airlift[struct::Airlift]:::struct
-    MCP23017{{ext:MCP23017}}
-    mfrc522{{ext::mfrc522}}
-    change_volume(task::change_volume)
     volume[struct::Volume]:::struct
-    dsp[struct::Dsp]
+    dsp[struct::Dsp]:::struct
 
+    %% ----- source structs ------- 
     SourceBluetooth[struct:SourceBluetooth]:::struct
     SourceWirelessLan[struct:SourceWirelessLan]:::struct
     SourceCd[struct:SourceCd]:::struct
+    SourceInternetRadio[struct:InternetRadio]:::struct
+
+
+    %% ------ external libraries ------ 
+    MCP23017{{ext:MCP23017}}
+    mfrc522{{ext::mfrc522}}
+    wifi-nina{{ext::wifi-nina}}
+
+
 
     app --> idle
     app --> init 
@@ -32,24 +42,33 @@ flowchart TB
     init --> volume
     init --> nfc
 
+    Sources --> SourceIterator 
+
     app --> select_source
     select_source --> SelectSourceDriver
-    select_source --> Sources
+    select_source --> SourceIterator
     SelectSourceDriver --> MCP23017
 
     app--> select_source_nfc
-    select_source_nfc --> Sources
+    select_source_nfc --> SourceIterator
     select_source_nfc --> nfc --> mfrc522
 
-    Sources -.->|contains| Source
+    Sources -..->|contains| Source
 
     Source --->|impl| SourceBluetooth
     Source --->|impl| SourceWirelessLan
-    Source --->|impl| SourceWirelessCD
+    Source --->|impl| SourceCd
+    Source --->|impl| SourceInternetRadio
 
 
     SourceBluetooth --> I2SMultiplexer
-    SourceBluetooth --> Up2StreamMini  --> airlift
+    SourceBluetooth --> Up2StreamMini
+
+    SourceInternetRadio --> I2SMultiplexer
+    SourceInternetRadio --> Up2StreamMini
+    
+    Up2StreamMini  --> wifi-nina
+
     
     app-->change_volume
     volume-->dsp

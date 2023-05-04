@@ -19,7 +19,7 @@ use defmt_rtt as _;
 use panic_probe as _;
 
 mod channel;
-mod source;
+// mod source;
 mod sources;
 
 //mod source_channel_map;
@@ -39,11 +39,11 @@ mod app {
 
     use crate::source_select_driver::SourceSelectDriver;
 
-    use crate::source::SourceError;
+    // use crate::source::SourceError;
 
-    use crate::source::{DisplayPosition, SourceBluetooth, SourceCd, SourceWirelessLan};
+    // use crate::source::{DisplayPosition, SourceBluetooth, SourceCd, SourceWirelessLan};
 
-    use crate::sources::{SourceInterator, Sources};
+    // use crate::sources::{SourceInterator, Sources};
 
     use crate::channel::Channel;
 
@@ -81,7 +81,8 @@ mod app {
     #[shared]
     struct Shared {
         select_source_driver: &'static mut SourceSelectDriver<I2CBus>,
-        source_selection_iterator: &'static mut SourceInterator<'static>,
+        //source_selection_iterator: &'static mut SourceInterator<'static>,
+        current_source: Sources,
     }
 
     // Local resources
@@ -127,6 +128,7 @@ mod app {
             &mut ctx.device.RESETS,
         );
 
+        // TODOP new required
         // Initialise the allocator.
         // TODO guessing a healp size of 1024 as this used in examples. Need to check.
         {
@@ -178,12 +180,27 @@ mod app {
 
         // };
 
-        let source_bluetooth = SourceBluetooth::new(Channel(2), DisplayPosition(0))
-            .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
-        let source_wlan = SourceWirelessLan::new(Channel(2), DisplayPosition(1))
-            .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
-        let source_cd = SourceCd::new(Channel(4), DisplayPosition(2))
-            .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
+        let source_bluetooth = SourceKind::Bluetooth(Source {
+            channel: Channel(2),
+            display_position: DisplayPosition(0),
+        });
+
+        let source_wlan = SourceKind::WirelessLan(Source {
+            channel: Channel(2),
+            display_position: DisplayPosition(1),
+        });
+
+        let source_cd = SourceKind::Cd(Source {
+            channel: Channel(4),
+            display_position: DisplayPosition(2),
+        });
+
+        // let source_bluetooth = SourceBluetooth::new(Channel(2), DisplayPosition(0))
+        //     .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
+        // let source_wlan = SourceWirelessLan::new(Channel(2), DisplayPosition(1))
+        //     .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
+        // let source_cd = SourceCd::new(Channel(4), DisplayPosition(2))
+        //     .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
 
         let mut sources = crate::sources::Sources::new();
 

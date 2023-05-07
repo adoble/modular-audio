@@ -30,10 +30,14 @@ mod source_select_driver;
 )]
 mod app {
 
+    //use embedded_hal::digital::v2::OutputPin;
+
+    use i2s_multiplexer::I2SMultiplexer;
     use rp_pico::hal::gpio::PullUp;
     use rp_pico::hal::{
-        clocks, gpio, gpio::pin::bank0::Gpio1, gpio::pin::bank0::Gpio4, gpio::pin::bank0::Gpio5,
-        gpio::pin::Input, i2c::I2C, pac, sio::Sio, watchdog::Watchdog,
+        clocks, gpio, gpio::pin::bank0::Gpio1, gpio::pin::bank0::Gpio10, gpio::pin::bank0::Gpio11,
+        gpio::pin::bank0::Gpio12, gpio::pin::bank0::Gpio13, gpio::pin::bank0::Gpio4,
+        gpio::pin::bank0::Gpio5, gpio::pin::Input, i2c::I2C, pac, sio::Sio, watchdog::Watchdog,
     };
     use rp_pico::XOSC_CRYSTAL_FREQ;
 
@@ -43,7 +47,7 @@ mod app {
 
     // use crate::source::{DisplayPosition, SourceBluetooth, SourceCd, SourceWirelessLan};
 
-    // use crate::sources::{SourceInterator, Sources};
+    use crate::sources::{DisplayPosition, Source, SourceConfig, SourceIterator, Sources};
 
     use crate::channel::Channel;
 
@@ -62,7 +66,7 @@ mod app {
     #[global_allocator]
     static HEAP: Heap = Heap::empty();
 
-    use alloc::boxed::Box;
+    //use alloc::boxed::Box;
 
     #[monotonic(binds = TIMER_IRQ_0, default = true)]
     type Rp2040Mono = Rp2040Monotonic;
@@ -75,14 +79,24 @@ mod app {
         ),
     >;
 
+    // Pin types
+    type MuxAddr0 = gpio::Pin<Gpio10, gpio::Output<gpio::PushPull>>;
+    type MuxAddr1 = gpio::Pin<Gpio11, gpio::Output<gpio::PushPull>>;
+    type MuxAddr2 = gpio::Pin<Gpio12, gpio::Output<gpio::PushPull>>;
+    type MuxEnable = gpio::Pin<Gpio13, gpio::Output<gpio::PushPull>>;
+
+    // Driver types
+    type MultiplexerDriver = I2SMultiplexer<MuxAddr0, MuxAddr1, MuxAddr2, MuxEnable>;
+
     const DEBOUNCE_DURATION: u64 = 100; // Milliseconds
 
     // Shared resources
     #[shared]
     struct Shared {
-        select_source_driver: &'static mut SourceSelectDriver<I2CBus>,
+        select_source_driver: SourceSelectDriver<I2CBus>,
         //source_selection_iterator: &'static mut SourceInterator<'static>,
-        current_source: Sources,
+        sources_iterator: SourceIterator<'static>,
+        i2s_multiplexer: MultiplexerDriver,
     }
 
     // Local resources
@@ -98,9 +112,11 @@ mod app {
         // Here we use MaybeUninit to allow for initialization in init()
         // This enables its usage in driver initialization
         // TODO do we need this? The new documentation is not clear
-        select_source_driver_ctx: MaybeUninit<SourceSelectDriver<I2CBus>> = MaybeUninit::uninit(),
-        sources_ctx: MaybeUninit<Sources> = MaybeUninit::uninit(),
-        source_selection_iterator_ctx : MaybeUninit<SourceInterator<'static>> = MaybeUninit::uninit(),
+        //select_source_driver_ctx: MaybeUninit<SourceSelectDriver<I2CBus>> = MaybeUninit::uninit(),
+        //i2s_multiplexer_ctx: MaybeUninit<Multiplexer> = MaybeUninit::unint(),
+        sources_ctx: MaybeUninit<Sources> = MaybeUninit::uninit(),  // Need to keep the sources backing the iterator
+        //source_selection_iterator_ctx : MaybeUninit<SourceInterator<'static>> = MaybeUninit::uninit(),
+
     ])]
     fn init(mut ctx: init::Context) -> (Shared, Local, init::Monotonics) {
         defmt::info!("Task init");
@@ -164,78 +180,81 @@ mod app {
         let address_offset: u8 = 0x01;
         let select_source_driver = SourceSelectDriver::new(i2c, address_offset)
             .unwrap_or_else(|_| defmt::panic!("Cannot initialise select source driver"));
-        let select_source_driver_initialised: &'static mut _ = ctx
-            .local
-            .select_source_driver_ctx
-            .write(select_source_driver);
+        // let select_source_driver_initialised: &'static mut _ = ctx
+        //     .local
+        //     .select_source_driver_ctx
+        //     .write(select_source_driver);
+
+        // Set up the I2S multiplexer driver
+        let mux_addr0_pin: MuxAddr0 = pins.gpio10.into_push_pull_output();
+        let mux_addr1_pin: MuxAddr1 = pins.gpio11.into_push_pull_output();
+        let mux_addr2_pin: MuxAddr2 = pins.gpio12.into_push_pull_output();
+        let mux_en_pin: MuxEnable = pins.gpio13.into_push_pull_output();
+
+        let i2s_multiplexer =
+            I2SMultiplexer::new(mux_addr0_pin, mux_addr1_pin, mux_addr2_pin, mux_en_pin)
+                .unwrap_or_else(|_| defmt::panic!("Cannot initialise i2s-multiplexer driver"));
 
         // Set up the source channel mapping
-        // let source_channel_map = enum_map! {
-        //     SourceType::Bluetooth => 2,
-        //     SourceType::WirelessLAN => 2,
-        //     SourceType::CD => 4,
-        //     SourceType::InternetRadio => 2,
-        //     SourceType::Aux => 0,
-        //     SourceType::DABRadio => 1,
 
-        // };
-
-        let source_bluetooth = SourceKind::Bluetooth(Source {
+        let source_bluetooth = Source::Bluetooth(SourceConfig {
             channel: Channel(2),
             display_position: DisplayPosition(0),
         });
 
-        let source_wlan = SourceKind::WirelessLan(Source {
+        let source_wlan = Source::WirelessLan(SourceConfig {
             channel: Channel(2),
             display_position: DisplayPosition(1),
         });
 
-        let source_cd = SourceKind::Cd(Source {
+        let source_cd = Source::Cd(SourceConfig {
             channel: Channel(4),
             display_position: DisplayPosition(2),
         });
 
-        // let source_bluetooth = SourceBluetooth::new(Channel(2), DisplayPosition(0))
-        //     .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
-        // let source_wlan = SourceWirelessLan::new(Channel(2), DisplayPosition(1))
-        //     .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
-        // let source_cd = SourceCd::new(Channel(4), DisplayPosition(2))
-        //     .unwrap_or_else(|_| defmt::panic!("Invalid channel specified"));
-
         let mut sources = crate::sources::Sources::new();
 
-        sources.add(Box::new(source_bluetooth));
-        sources.add(Box::new(source_wlan));
-        sources.add(Box::new(source_cd));
+        sources.insert(source_bluetooth);
+        sources.insert(source_wlan);
+        sources.insert(source_cd);
+
+        // Set up the sources interator. The sources are first stored in the static local
+        //  context variable so that the iterator basis is also availble.
+        let sources_initialised: &'static mut _ = ctx.local.sources_ctx.write(sources);
+        let sources_iterator = sources_initialised.iter();
 
         // sources[3] = sources::SourceInternetRadio::new(2);
         // sources[4] = sources::SourceAux::new(0);
         // sources[5] = sources::SourceDabRadio::new(1);
 
         //TODO As sources does not go into Shared is this type of initialisation neccessary?
-        let sources_initialised: &'static mut _ = ctx.local.sources_ctx.write(sources);
+        //let sources_initialised: &'static mut _ = ctx.local.sources_ctx.write(sources);
 
         //let mut sources_selection_iterator = sources_initialised.into_iter();
-        let sources_selection_iterator = sources_initialised.into_iter();
-        let sources_selection_iterator_initialised: &'static mut _ = ctx
-            .local
-            .source_selection_iterator_ctx
-            .write(sources_selection_iterator);
+        // let sources_selection_iterator = sources_initialised.into_iter();
+        // let sources_selection_iterator_initialised: &'static mut _ = ctx
+        //     .local
+        //     .source_selection_iterator_ctx
+        //     .write(sources_selection_iterator);
 
         // Activate the initial source
-        let selected_source = sources_selection_iterator_initialised.next();
-        if let Err(_) = match selected_source {
-            Some(source) => source.activate(),
+        activate_source::spawn().unwrap();
 
-            None => Err(SourceError::ActivationFailed),
-        } {
-            defmt::error!("Cannot activate the initial source")
-        }
+        // let selected_source = sources_selection_iterator_initialised.next();
+        // if let Err(_) = match selected_source {
+        //     Some(source) => source.activate(),
+
+        //     None => Err(SourceError::ActivationFailed),
+        // } {
+        //     defmt::error!("Cannot activate the initial source")
+        // }
 
         (
             Shared {
-                select_source_driver: select_source_driver_initialised,
-                source_selection_iterator: sources_selection_iterator_initialised,
+                select_source_driver,
+                sources_iterator,
+                i2s_multiplexer,
+                //source_selection_iterator: sources_selection_iterator_initialised,
             },
             Local {
                 source_change_interrupt_pin,
@@ -269,32 +288,41 @@ mod app {
 
         // Spawn the task to select the source. Delayed for 100 ms to removed bounce
         // (the select_source task will check the button state)
-        select_source::spawn_after(DEBOUNCE_DURATION.millis())
+        activate_source::spawn_after(DEBOUNCE_DURATION.millis())
             .unwrap_or_else(|_| defmt::panic!("Unable to spawn select_source"));
     }
 
     /// RTIC task to select a source.
     /// The selected source is stored as a shared resource.
-    #[task(shared = [select_source_driver, source_selection_iterator])]
-    fn select_source(ctx: select_source::Context) {
-        defmt::info!("Task select_source");
+    #[task(shared = [select_source_driver, i2s_multiplexer, sources_iterator])]
+    fn activate_source(ctx: activate_source::Context) {
+        defmt::info!("Task activate_source");
 
         let select_source_driver = ctx.shared.select_source_driver;
+        let i2s_multiplexer_driver = ctx.shared.i2s_multiplexer;
+        let sources_iterator = ctx.shared.sources_iterator;
 
-        let source_selection_iterator = ctx.shared.source_selection_iterator;
-        //let source_selected = sources.selected();
+        (
+            select_source_driver,
+            i2s_multiplexer_driver,
+            sources_iterator,
+        )
+            .lock(|selecter, multiplexer, sources_iter| {
+                if let Some(new_source) =
+                    selecter.changed_source(sources_iter).unwrap_or_else(|_| {
+                        defmt::panic!("Unable to determine changed source");
+                    })
+                {
+                    // Get the new source channel
+                    let new_channel = new_source.channel();
+                    // Switch the i2s multiplexer to the correct channel
+                    let channel_number: u8 = new_channel.channel_number();
 
-        (select_source_driver, source_selection_iterator).lock(|driver, sources_iterator| {
-            if let Some(new_source) = driver.changed_source(sources_iterator).unwrap_or_else(|_| {
-                // defmt::panic!("Unable to determine changed source: error {:?}", err)  // TODO provide some formatting on the error type
-                defmt::panic!("Unable to determine changed source");
-            }) {
-                new_source
-                    .activate()
-                    .unwrap_or_else(|_| defmt::panic!("Unable to activate new source"));
-                //TODO maybe need a deactivate before doing the activate
-            }
-        });
+                    multiplexer
+                        .set_channel(channel_number as u8)
+                        .unwrap_or_else(|_| defmt::panic!("Cannot set channel"))
+                };
+            });
     }
 }
 

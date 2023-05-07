@@ -5,7 +5,6 @@ use embedded_hal as hal;
 use hal::blocking::i2c::{Write, WriteRead};
 
 extern crate alloc;
-use alloc::boxed::Box;
 
 // The driver for the MCP23017 chip used on the board
 use mcp23017::{Polarity, MCP23017};
@@ -13,8 +12,7 @@ use mcp23017::{Polarity, MCP23017};
 use defmt as _;
 use panic_probe as _;
 
-use crate::source::Source;
-use crate::sources::SourceInterator;
+use crate::sources::{Source, SourceIterator};
 
 // Defines errors being issued by te MCP23017 chip on the source select board
 #[derive(Debug, Copy, Clone)]
@@ -98,17 +96,25 @@ where
         })
     }
 
+    /// This should always be called when the source selector has delivered a interupt SUGGESTING that
+    /// the source has been changed by the used. If the button has been pressed then this actually means
+    /// that the user has changed the source. In this case thre function returns with the new source.
+    ///
+    /// If the button is released then an interrupt is also issued, but no source changehas happeded. In
+    /// which case None is returned.  
+    /// the newly selected source.
+    ///  
     /// Example   TODO update this comment
     /// ```
-    ///   match select_source_driver.changed_source(&sources).unwrap() {
-    ///     Some(source) => source.activate(),
+    ///   match select_source_driver.changed_source(&sources_iterator).unwrap() {
+    ///     Some(new_source) => // ... Activate the new source source...
     ///     None => ();   
     ///   }
     /// ```
     /// Alternatively:
     /// ```
-    ///   if let Some(new_source) = select_source_driver.changed_source(&sources).unwrap() {
-    ///     new_source.activate()
+    ///   if let Some(new_source) = select_source_driver.changed_source(&sources_iterator).unwrap() {
+    ///     // ... Activate the new source ...
     ///   }
     /// ```
     ///
@@ -118,15 +124,19 @@ where
     // ) -> Result<Option<Source<A>>, Error> {
     pub fn changed_source<'a>(
         &mut self,
-        sources_iter: &'a mut SourceInterator,
-    ) -> Result<Option<&'a Box<dyn Source>>, Error> {
-        // TODO
-
+        sources_iter: &'a mut SourceIterator,
+    ) -> Result<Option<&'a Source>, Error> {
         // Clear the interrupt pin on the MCP23017
+
+        defmt::debug!("Entering changed_source");
+
         let intr_pin = self
             .mcp23017_driver
             .get_last_interrupt_pin()
             .map_err(|_| Error::MCP23017Error(MCP23017Errors::InterruptPinError))?;
+
+        defmt::debug!("HERE");
+
         // Now check the state of the pin causing the interrupt. If the button
         // is being pressed then this will be False. If the button is being
         // released then this will be True. This is debounces the source select
@@ -146,7 +156,7 @@ where
             // Get the pin number of the current source. The circuit is such that
             // the pin number corresponds to display position of the source in
             // sources.
-
+            defmt::debug!("Button pressed");
             if let Some(current_source) = sources_iter.peek() {
                 let led_pin_number: u8 = current_source.display_position().into();
                 // Clear the current source led
@@ -160,6 +170,7 @@ where
                 // if let Some(new_source_index) = sources.selected_index() {
                 if let Some(new_source) = sources_iter.next() {
                     let led_pin_number: u8 = new_source.display_position().into();
+                    defmt::debug!("led_pin_number: {}", led_pin_number);
                     // Now set the LED associated with the source
                     self.mcp23017_driver
                         .digital_write(led_pin_number, true)

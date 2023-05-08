@@ -134,17 +134,12 @@ where
         //     .digital_write(2, true)
         //     .unwrap_or_else(|_| defmt::panic!("Error Here"));
 
-        let res = self.mcp23017_driver.get_last_interrupt_pin();
-
-        if let Err(err) = res {
-            match err {
-                mcp23017::Error::BusError(_e) => defmt::debug!("BUS ERROR"),
-                mcp23017::Error::InterruptPinError => defmt::debug!("INTERRUPT PIN ERROR"),
-            }
-        }
-
-        // Clear the interrupt pin on the MCP23017
-
+        // Now check the state of the pin causing the interrupt. If the button
+        // is being pressed then this will be False. If the button is being
+        // released then this will be True. This is debounces the source select
+        // button press.
+        // IMPORTANT: This will also clear the interrrupt. This is essential
+        // for the operation.
         let intr_pin = self
             .mcp23017_driver
             .get_last_interrupt_pin()
@@ -152,12 +147,6 @@ where
 
         defmt::debug!("GOT HERE with {}", intr_pin);
 
-        // Now check the state of the pin causing the interrupt. If the button
-        // is being pressed then this will be False. If the button is being
-        // released then this will be True. This is debounces the source select
-        // button press.
-        // IMPORTANT: This will also clear the interrrupt. This is essential
-        // for the operation.
         let state = self
             .mcp23017_driver
             .digital_read(intr_pin)

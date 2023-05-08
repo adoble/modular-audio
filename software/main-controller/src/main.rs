@@ -329,29 +329,23 @@ mod app {
     fn activate_initial_source(ctx: activate_initial_source::Context) {
         defmt::info!("Task activate_initial_source");
 
-        let select_source_driver = ctx.shared.select_source_driver;
         let i2s_multiplexer_driver = ctx.shared.i2s_multiplexer;
         let sources_iterator = ctx.shared.sources_iterator;
 
-        (
-            select_source_driver,
-            i2s_multiplexer_driver,
-            sources_iterator,
-        )
-            .lock(|selecter, multiplexer, sources_iter| {
-                if let Some(initial_source) = sources_iter.peek() {
-                    // Get the new source channel
-                    let initial_channel = initial_source.channel();
-                    // Switch the i2s multiplexer to the correct channel
-                    let channel_number: u8 = initial_channel.channel_number();
+        (i2s_multiplexer_driver, sources_iterator).lock(|multiplexer, sources_iter| {
+            if let Some(initial_source) = sources_iter.peek() {
+                // Get the new source channel
+                let initial_channel = initial_source.channel();
+                // Switch the i2s multiplexer to the correct channel
+                let channel_number: u8 = initial_channel.channel_number();
 
-                    multiplexer
-                        .set_channel(channel_number as u8)
-                        .unwrap_or_else(|_| defmt::panic!("Cannot set channel"))
-                } else {
-                    defmt::panic!("No initial channel set");
-                }
-            });
+                multiplexer
+                    .set_channel(channel_number as u8)
+                    .unwrap_or_else(|_| defmt::panic!("Cannot set channel"))
+            } else {
+                defmt::panic!("No initial channel set");
+            }
+        });
     }
 }
 

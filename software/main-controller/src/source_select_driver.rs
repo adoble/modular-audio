@@ -145,8 +145,6 @@ where
             .get_last_interrupt_pin()
             .map_err(|_| Error::MCP23017Error(MCP23017Errors::InterruptPinError))?;
 
-        defmt::debug!("Pin causing interrupt {}", intr_pin);
-
         let state = self
             .mcp23017_driver
             .digital_read(intr_pin)
@@ -163,7 +161,6 @@ where
             defmt::debug!("Button pressed");
             if let Some(current_source) = sources_iter.peek() {
                 let led_pin_number: u8 = current_source.display_position().into();
-                defmt::debug!("Current led_pin_number: {}", led_pin_number);
                 // Clear the current source led
                 self.mcp23017_driver
                     .digital_write(led_pin_number, false)
@@ -172,7 +169,6 @@ where
                 // Update the source
                 if let Some(new_source) = sources_iter.next() {
                     let led_pin_number: u8 = new_source.display_position().into();
-                    defmt::debug!("Next led_pin_number: {}", led_pin_number);
                     // Now set the LED associated with the source
                     self.mcp23017_driver
                         .digital_write(led_pin_number, true)
@@ -187,9 +183,5 @@ where
         } else {
             Ok(None)
         }
-    }
-
-    pub fn info(&self) {
-        defmt::debug!("Select Source Driver reporting for duty");
     }
 }

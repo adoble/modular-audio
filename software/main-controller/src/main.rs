@@ -318,6 +318,8 @@ mod app {
                     // Switch the i2s multiplexer to the correct channel
                     let channel_number: u8 = new_channel.channel_number();
 
+                    defmt::info!("Setting channel {}", channel_number);
+
                     multiplexer
                         .set_channel(channel_number as u8)
                         .unwrap_or_else(|_| defmt::panic!("Cannot set channel"))
@@ -338,6 +340,8 @@ mod app {
                 let initial_channel = initial_source.channel();
                 // Switch the i2s multiplexer to the correct channel
                 let channel_number: u8 = initial_channel.channel_number();
+
+                defmt::info!("Setting channel {}", channel_number);
 
                 multiplexer
                     .set_channel(channel_number as u8)

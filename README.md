@@ -11,10 +11,11 @@ An class D amplifier module that can select other digital sources (I2S, S/PDIF).
 ### Functional Components
 
 ```mermaid
-graph LR;
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart LR
 
 
-main_ctrl["Main Controller"] -- I2C --- i2sm[I2S-Multiplexor];
+main_ctrl["Main Controller"] -- Parallel Bus --- i2sm[I2S-Multiplexer];
 wifi --- antenna1((Antenna <br> 1));
 
 main_ctrl -- I2C --- dsp;
@@ -28,7 +29,7 @@ style toslink_out_converter stroke-dasharray: 5 5;
 style toslink_out stroke-dasharray: 5 5;
 
 
-subgraph sources [Sources]
+subgraph sources [Sources-In]
     cd{{CD}};
     dvd{{DVD}};
     tos_link_in{{Toslink In}}
@@ -37,6 +38,7 @@ subgraph sources [Sources]
 end
 
 subgraph source_sel_display [Source Selection Lights]
+    direction LR
     cd_source_selected((CD ))
     dvd_source_selected((DVD))
     bluetooth_source_selected((BT ))
@@ -73,8 +75,8 @@ vol_knob --- vol_proc -- I2C+1--- main_ctrl;
 sel_source_btn --- sel_source -- I2C+1--- main_ctrl;
 
 
-click main_ctrl "https://github.com/adoble/modular-audio/blob/main/README.md#controller"
-click i2sm "https://github.com/adoble/modular-audio/tree/main/hardware/i2s-multiplexer" "Click to see sub-repository"
+%%click main_ctrl "https://github.com/adoble/modular-audio/blob/main/README.md#controller"%%
+%%click i2sm "https://github.com/adoble/modular-audio/tree/main/hardware/i2s-multiplexer" "Click to see sub-repository"%%
 ```
 
 

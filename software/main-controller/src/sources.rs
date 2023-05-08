@@ -110,10 +110,8 @@ impl<'a> Iterator for SourceIterator<'a> {
             return None;
         };
 
-        let current_source = &self.sources.0[self.index];
-
         self.index = (self.index + 1) % self.sources.0.len();
 
-        Some(current_source)
+        Some(&self.sources.0[self.index])
     }
 }

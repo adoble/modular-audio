@@ -126,16 +126,31 @@ where
         &mut self,
         sources_iter: &'a mut SourceIterator,
     ) -> Result<Option<&'a Source>, Error> {
-        // Clear the interrupt pin on the MCP23017
-
         defmt::debug!("Entering changed_source");
+
+        // This code works. Maybe this shows that we can have an external driver encapsulated with another, higher level,
+        // function driver and only the high level driver needs to be locked!!! This is a TODO
+        // self.mcp23017_driver
+        //     .digital_write(2, true)
+        //     .unwrap_or_else(|_| defmt::panic!("Error Here"));
+
+        let res = self.mcp23017_driver.get_last_interrupt_pin();
+
+        if let Err(err) = res {
+            match err {
+                mcp23017::Error::BusError(_e) => defmt::debug!("BUS ERROR"),
+                mcp23017::Error::InterruptPinError => defmt::debug!("INTERRUPT PIN ERROR"),
+            }
+        }
+
+        // Clear the interrupt pin on the MCP23017
 
         let intr_pin = self
             .mcp23017_driver
             .get_last_interrupt_pin()
             .map_err(|_| Error::MCP23017Error(MCP23017Errors::InterruptPinError))?;
 
-        defmt::debug!("HERE");
+        defmt::debug!("GOT HERE with {}", intr_pin);
 
         // Now check the state of the pin causing the interrupt. If the button
         // is being pressed then this will be False. If the button is being
@@ -187,8 +202,7 @@ where
         }
     }
 
-    // pub fn set_source<A: SourceActivation>(&self, source: Source<A>) -> Result<Source<A>, Error> {
-    //     // TODO
-    //     Ok(source)
-    // }
+    pub fn info(&self) {
+        defmt::debug!("Select Source Driver reporting for duty");
+    }
 }

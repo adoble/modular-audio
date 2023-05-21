@@ -9,9 +9,11 @@ flowchart TB
     select_source(task::select_source)
     select_source_nfc(task::select_source_nfc)
     change_volume(task::change_volume)
+    activate_initial_source(task::activate_initial_source)
+    actvate_source(task:.activate_source)
     
     %% ---- structs & traits ------- 
-    SelectSourceDriver[struct::SelectSourceDriver]:::struct
+    SourceSelectDriver[struct::SourceSelectDriver]:::struct
     Sources[struct::Sources]:::struct
     SourceIterator[struct::SourceIterator]:::struct
     Source[trait::Source]:::trait
@@ -37,7 +39,8 @@ flowchart TB
 
     app --> idle
     app --> init 
-    init --> SelectSourceDriver
+    init --> activate_initial_source
+    init --> SourceSelectDriver
     init --> Sources
     init --> volume
     init --> nfc
@@ -45,9 +48,9 @@ flowchart TB
     Sources --> SourceIterator 
 
     app --> select_source
-    select_source --> SelectSourceDriver
+    select_source --> SourceSelectDriver
     select_source --> SourceIterator
-    SelectSourceDriver --> MCP23017
+    SourceSelectDriver --> MCP23017
 
     app--> select_source_nfc
     select_source_nfc --> SourceIterator

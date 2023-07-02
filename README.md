@@ -33,8 +33,6 @@ subgraph sources [Sources-In]
     cd{{CD}};
     dvd{{DVD}};
     tos_link_in{{Toslink In}}
-    aux{{Aux In}};
-    
 end
 
 subgraph source_sel_display [Source Selection Lights]
@@ -43,15 +41,15 @@ subgraph source_sel_display [Source Selection Lights]
     dvd_source_selected((DVD))
     bluetooth_source_selected((BT ))
     wlan_source_selected((WLAN))
-    aux_source_selected((AUX))
     dab_source_selected((DAB))
 end
 
 antenna2((Antenna <br> 2)) --- airlink;
-airlink["Airlink/Bluetooth <br> /Internet Radio <br> Module"] -- I2S --- i2sm
+airlink["Airlink/Bluetooth"] -- I2S --- i2sm
 cd -- I2S  --- i2sm;
 dvd -- "S/PDIF" --- spdif["S/PDIF Module"] -- I2S --- i2sm;
-aux --- Pre-Amp --- adc[Analog to <br>Digital Converter] -- I2S --- i2sm;
+internet-radio["Internet Radio"] -- I2S --- i2sm
+
 tos_link_in -- "S/PDIF" --- toslink_converter[TOSLINK<br>Converter] -- I2S --- i2sm; 
 dab["DAB Radio"] -- I2S --- i2sm
 

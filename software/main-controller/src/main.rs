@@ -11,7 +11,7 @@
 
 #![no_std]
 #![no_main]
-#![feature(default_alloc_error_handler)]
+// #![feature(default_alloc_error_handler)] // Stable since 1.68.0 and no longer requires an attribute to enable
 
 //use defmt::*;
 use defmt as _;

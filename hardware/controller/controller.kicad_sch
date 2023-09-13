@@ -2983,6 +2983,11 @@
     (stroke (width 0) (type default))
     (uuid bad512d6-9f0a-43e4-afbb-8b13547babdd)
   )
+  (polyline (pts (xy 355.6 92.71) (xy 363.22 92.71))
+    (stroke (width 0) (type default))
+    (uuid bb224ca8-c27b-430a-827b-00b1e16b78c7)
+  )
+
   (wire (pts (xy 49.53 157.48) (xy 49.53 166.37))
     (stroke (width 0) (type default))
     (uuid bc2cbad5-b4d6-41ce-911b-73af39517d7a)
@@ -3248,6 +3253,12 @@
     (uuid fed8e51b-32f1-45b5-bd6b-5a44c620ba48)
   )
 
+  (rectangle (start 363.22 88.9) (end 378.46 95.25)
+    (stroke (width 0) (type default))
+    (fill (type none))
+    (uuid 52354f8f-aeba-43f5-8a2e-110fe1c2ca36)
+  )
+
   (text_box "3V3_AUX should only be used for WiFi \ndue to power demands. "
     (at 187.96 139.7 0) (size 25.4 8.89)
     (stroke (width 0) (type default) (color 255 0 0 1))
@@ -3339,6 +3350,10 @@
     (at 194.31 43.18 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 778638ac-e0fb-42b8-8c63-0809f5895195)
+  )
+  (text "Connected to  \nbutton bank" (at 364.49 93.98 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 8c0b9c61-e7ad-471e-bf7f-c91897f38eb1)
   )
   (text "Only 8 bit bus used" (at 62.23 27.94 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))

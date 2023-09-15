@@ -8,6 +8,10 @@
 //!     MCP23017::INTB (change, active low) -> MCU::GPIO1
 //!     MCP23017::[SDA, SCL] -> MCU::I2C1[SDA, SCL]
 //!  - Process the interrupt over GPIO 1 (button has been pressed).  MCP23017 Pin used for the button is GPB0.
+//!
+
+// TODOs
+// - The mcp23017 is not correctly initialised and can hang in that the "interrupt" stays stuck low.
 
 #![no_std]
 #![no_main]

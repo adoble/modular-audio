@@ -115,3 +115,12 @@ impl<'a> Iterator for SourceIterator<'a> {
         Some(&self.sources.0[self.index])
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    fn test_test() {
+        assert!(true);
+    }
+}

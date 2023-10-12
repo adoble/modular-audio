@@ -14,10 +14,12 @@
 // - Using https://github.com/lulf/watchful/blob/main/firmware/app/src/main.rs as an example do two things:
 //        - Use StaticCell
 //        - Only put I2C driver in as mutex. Other drivers, pass in as references to the corresponding functions.
+//          However, my first approach would be to continue as is (mutexes on all the drivers) and then see if we can simplify
 // - Maybe need to use shared-bus, see https://docs.rs/shared-bus/latest/shared_bus/ and the referenced blog post.
+// - Restructure so that we can use std unit tests.
+//       See https://ferrous-systems.com/blog/test-embedded-app/#accessing-std-when-testing-embedded-code-testing-host2target
 
-//#![no_std]
-#![cfg_attr(not(test), no_std)]
+#![no_std]
 #![no_main]
 // #![feature(default_alloc_error_handler)] // Stable since 1.68.0 and no longer requires an attribute to enable
 #![feature(type_alias_impl_trait)]
@@ -25,15 +27,19 @@
 //use defmt::*;
 
 // Included modules
-mod channel;
+//mod channel;
 mod error;
 mod source_select_driver;
-mod sources;
+// mod sources;
+
+//use channel::Channel;
+//use sources::{Source, SourceIterator, Sources};
 
 // These need to be explicity imported due to the #![cfg_attr(not(test), no_std)] above.
-use core::marker::Sized;
-use core::module_path;
-use core::option::Option::{self, None, Some};
+// use core::default::Default;
+// use core::marker::Sized;
+// use core::module_path;
+// use core::option::Option::{self, None, Some};
 
 use defmt as _;
 use defmt_rtt as _;
@@ -58,9 +64,9 @@ use gpio::{Input, Level, Output, Pull};
 use crate::source_select_driver::SourceSelectDriver;
 use i2s_multiplexer::I2SMultiplexer;
 
-use crate::sources::{DisplayPosition, Source, SourceConfig, SourceIterator, Sources};
+use sources::{DisplayPosition, Source, SourceConfig, SourceIterator, Sources};
 
-use crate::channel::Channel;
+use channel::Channel;
 
 // The driver types are omplicated and need to be explictly set for the shared variable.
 // To keep this more more manageble a number of types are defined here.
@@ -166,7 +172,7 @@ async fn main(spawner: Spawner) {
         display_position: DisplayPosition(2),
     });
 
-    let mut sources = crate::sources::Sources::new();
+    let mut sources = sources::Sources::new();
 
     sources.insert(source_bluetooth);
     sources.insert(source_wlan);

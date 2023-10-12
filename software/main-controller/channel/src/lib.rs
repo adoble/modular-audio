@@ -1,3 +1,5 @@
+#![cfg_attr(not(test), no_std)]
+
 pub const NUMBER_SUPPORTED_CHANNELS: u8 = 6; // TODO should this be in the i2smultiplexer driver?
 
 #[derive(Copy, Clone, Debug)]
@@ -31,4 +33,14 @@ impl Channel {
 
 pub enum ChannelError {
     Invalid,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_try() {
+        assert!(true);
+    }
 }

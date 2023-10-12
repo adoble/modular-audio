@@ -1,0 +1,5 @@
+[package]
+edition = "2021"
+name = "channel"
+version = "0.2.0"
+description = "Data structures to represent a channel"

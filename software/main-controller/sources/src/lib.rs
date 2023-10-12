@@ -1,10 +1,24 @@
+#![cfg_attr(not(test), no_std)]
+
+// TODO:
+// - remove the seperate sources iterator. This is giving problems with the static scope of the sources.
+
 extern crate alloc;
 
 //use alloc::boxed::Box;
 use alloc::vec::Vec;
 //use core::ops::{Index, IndexMut};
+// use core::clone::Clone;
+// use core::cmp::{Eq, Ord, PartialEq, PartialOrd};
+// use core::fmt::Debug;
+// use core::marker::Copy;
 
-use crate::channel::Channel;
+// use core::prelude::v1::derive;
+
+//use core::prelude::v1::*;
+//use core::prelude::rust_2021::*;
+
+use channel::Channel;
 
 pub enum Source {
     Bluetooth(SourceConfig),
@@ -118,9 +132,10 @@ impl<'a> Iterator for SourceIterator<'a> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
 
     #[test]
-    fn test_test() {
-        assert!(true);
+    fn test_example() {
+        assert_eq!(1, 1);
     }
 }

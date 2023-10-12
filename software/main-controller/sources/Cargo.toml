@@ -1,0 +1,10 @@
+[package]
+edition = "2021"
+name = "sources"
+version = "0.2.0"
+description = "Data structures to hold the different sources"
+
+[dependencies]
+embedded-alloc = "0.5.0"
+
+channel = { path = "../channel" }

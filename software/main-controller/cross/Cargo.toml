@@ -1,5 +1,6 @@
 [workspace]
 members = ["app", "i2s-multiplexer"]
+resolver = "2"
 
 # Profiles for the cross compiled packages
 

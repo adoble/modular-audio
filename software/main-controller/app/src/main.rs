@@ -43,17 +43,25 @@ mod source_select_driver;
 
 use defmt as _;
 use defmt_rtt as _;
+//#[cfg(feature = "panic-probe")]
 use panic_probe as _;
 
 // use core::cell::RefCell;
-// use core::mem::MaybeUninit;
+
+extern crate alloc;
+
+use embedded_alloc::Heap;
+#[global_allocator]
+static HEAP: Heap = Heap::empty();
 
 use embassy_executor::Spawner;
 use embassy_rp::gpio; // gpio::peripherals::PIN_1,
 use embassy_rp::peripherals::{PIN_1, PIN_10, PIN_11, PIN_12, PIN_13};
 use embassy_time::{Duration, Timer};
 
-use embassy_sync::blocking_mutex::raw::ThreadModeRawMutex;
+//use embassy_sync::blocking_mutex::raw::ThreadModeRawMutex;
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+//use embassy_sync::blocking_mutex::raw::NoopRawMutex;
 use embassy_sync::mutex::Mutex; // Is this the right one? TODO - Using an async mutex
 
 use embassy_rp::i2c::{self, Blocking, Config, I2c};
@@ -88,29 +96,54 @@ type I2CBus = I2c<'static, I2C0, Blocking>;
 // Is ThreadModeRawMutex the right model? or is NoopRawMutex better as  data is only shared between tasks running on the same executor?
 // static SHARED_SOURCES: Mutex<ThreadModeRawMutex, RefCell<Option<Sources>>> =
 //     Mutex::new(RefCell::new(None));
-static SHARED_SOURCES: Mutex<ThreadModeRawMutex, Option<Sources>> = Mutex::new(None);
+static SHARED_SOURCES: Mutex<CriticalSectionRawMutex, Option<Sources>> = Mutex::new(None);
 
 // static SHARED_SOURCES_ITERATOR: Mutex<
 //     ThreadModeRawMutex,
 //     RefCell<Option<SourceIterator<'static>>>,
 // > = Mutex::new(RefCell::new(None));
-static SHARED_SOURCES_ITERATOR: Mutex<ThreadModeRawMutex, Option<SourceIterator<'static>>> =
+static SHARED_SOURCES_ITERATOR: Mutex<CriticalSectionRawMutex, Option<SourceIterator<'static>>> =
     Mutex::new(None);
 
-static SHARED_I2S_MULTIPLEXER: Mutex<ThreadModeRawMutex, Option<MultiplexerDriver>> =
+static SHARED_I2S_MULTIPLEXER: Mutex<CriticalSectionRawMutex, Option<MultiplexerDriver>> =
     Mutex::new(None);
 
 static SHARED_SOURCE_SELECTION_DRIVER: Mutex<
-    ThreadModeRawMutex,
+    CriticalSectionRawMutex,
     Option<SourceSelectDriver<I2CBus>>,
 > = Mutex::new(None);
 
 // TODO change this into a proper Duration
 const DEBOUNCE_DURATION: u64 = 100; // Milliseconds
 
+// #[panic_handler] // built-in ("core") attribute
+// fn core_panic(info: &core::panic::PanicInfo) -> ! {
+//     let msg = info.payload() as &str;
+//     defmt::panic!("{}", msg); // e.g. using RTT
+//     reset()
+// }
+
+// use core::panic::PanicInfo;
+
+// #[cfg(not(feature = "panic-probe"))]
+// #[inline(never)]
+// #[panic_handler]
+// fn panic(_info: &PanicInfo) -> ! {
+//     cortex_m::peripheral::SCB::sys_reset();
+// }
+
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
     defmt::info!("Starting main task");
+
+    // Initialise the allocator. Required for data structures.
+    // Assuming that 2048 bytes is enough
+    {
+        use core::mem::MaybeUninit;
+        const HEAP_SIZE: usize = 2048;
+        static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
+        unsafe { HEAP.init(HEAP_MEM.as_ptr() as usize, HEAP_SIZE) }
+    }
 
     let p = embassy_rp::init(Default::default());
 

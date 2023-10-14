@@ -8,8 +8,15 @@ edition = "2021"
 [dependencies]
 cortex-m = "0.7"
 cortex-m-rt = "0.7"
+
+
 embedded-hal = { version = "0.2.7", features = ["unproven"] }
+# This is the newest version of embedded-hal as of the time of writing.
+# embedded-hal = { package = "embedded-hal", version = "=1.0.0-rc.1" }
+# embedded-hal-async = "1.0.0-rc.1"
+# embedded-io-async = { version = "0.5.0", features = ["defmt-03"] }
+# embedded-storage = { version = "0.3" }
 
 defmt = "0.3"
 defmt-rtt = "0.3"
-panic-probe = { version = "0.3", features = ["print-defmt"] }
+#panic-probe = { version = "0.3", features = ["print-defmt"] }

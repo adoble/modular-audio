@@ -4,10 +4,7 @@
     "rust-analyzer.displayInlayHints": true,
     "rust-analyzer.linkedProjects": [
         "Cargo.toml",
-        "i2s-multiplexer/Cargo.toml",
-        "sources/Cargo.toml",
-        "channel/Cargo.toml",
-        "app/Cargo.toml",
+        "cross/Cargo.toml",
     ],
     "editor.formatOnSave": true
 }

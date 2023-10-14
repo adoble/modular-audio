@@ -56,8 +56,8 @@ enum-map = "2.5.0"
 # The internal libraries used in the modular-audio project 
 #source_select_driver = { path = "source_select_driver" }
 i2s-multiplexer = { path = "../i2s-multiplexer" }
-sources = { path = "../sources" }
-channel = { path = "../channel" }
+sources = { path = "../../sources" }
+channel = { path = "../../channel" }
 
 
 # The embassy crates. Including a lot, but need to check later (using cargo +nightly udeps) 

@@ -126,7 +126,7 @@ const DEBOUNCE_DURATION: u64 = 100; // Milliseconds
 // use core::panic::PanicInfo;
 
 // #[cfg(not(feature = "panic-probe"))]
-// #[inline(never)]
+// #[inline(never)] 
 // #[panic_handler]
 // fn panic(_info: &PanicInfo) -> ! {
 //     cortex_m::peripheral::SCB::sys_reset();

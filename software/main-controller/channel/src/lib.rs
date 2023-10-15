@@ -2,7 +2,7 @@
 
 pub const NUMBER_SUPPORTED_CHANNELS: u8 = 6; // TODO should this be in the i2smultiplexer driver?
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Channel(pub u8); //TODO Why do I need the u8 to be public?
 
 impl Channel {

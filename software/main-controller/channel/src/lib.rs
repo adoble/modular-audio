@@ -3,7 +3,7 @@
 pub const NUMBER_SUPPORTED_CHANNELS: u8 = 6; // TODO should this be in the i2smultiplexer driver?
 
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub struct Channel(pub u8); //TODO Why do I need the u8 to be public?
+pub struct Channel(pub u8);
 
 impl Channel {
     pub fn new(channel_number: u8) -> Result<Self, ChannelError> {
@@ -31,6 +31,7 @@ impl Channel {
 //     }
 // }
 
+#[derive(Debug, Copy, Clone)]
 pub enum ChannelError {
     Invalid,
 }
@@ -40,7 +41,26 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_try() {
-        assert!(true);
+    fn creation() {
+        let channel = Channel::new(3);
+        assert!(channel.is_ok());
+
+        let channel = Channel::new(0);
+        assert!(channel.is_ok());
+    }
+
+    #[test]
+    fn creation_with_error() {
+        let channel = Channel::new(6);
+        assert!(channel.is_err());
+    }
+
+    #[test]
+    fn get_channel_number() {
+        let expected_channel_number = 4;
+        let channel = Channel::new(expected_channel_number).unwrap();
+
+        let n = channel.channel_number();
+        assert_eq!(n, expected_channel_number);
     }
 }

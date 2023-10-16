@@ -12,7 +12,7 @@ use mcp23017::{Polarity, MCP23017};
 use defmt as _;
 use panic_probe as _;
 
-use sources::{Source, SourceIterator};
+use sources::{Source, Sources};
 
 // Defines errors being issued by te MCP23017 chip on the source select board
 #[derive(Debug, Copy, Clone)]
@@ -124,8 +124,9 @@ where
     // ) -> Result<Option<Source<A>>, Error> {
     pub fn changed_source<'a>(
         &mut self,
-        sources_iter: &'a mut SourceIterator,
-    ) -> Result<Option<&'a Source>, Error> {
+        //sources_iter: &'a mut SourceIterator,
+        sources: &mut Sources,
+    ) -> Result<(), Error> {
         defmt::debug!("Entering changed_source");
 
         // This code works. Maybe this shows that we can have an external driver encapsulated with another, higher level,
@@ -158,8 +159,9 @@ where
             // Get the pin number of the current source. The circuit is such that
             // the pin number corresponds to display position of the source in
             // sources.
+            // TODO try an remove the nested structure here
             defmt::debug!("Button pressed");
-            if let Some(current_source) = sources_iter.peek() {
+            if let Some(current_source) = sources.current_source() {
                 let led_pin_number: u8 = current_source.display_position().into();
                 // Clear the current source led
                 self.mcp23017_driver
@@ -167,21 +169,21 @@ where
                     .map_err(|_| Error::ClearLEDError(led_pin_number))?;
 
                 // Update the source
-                if let Some(new_source) = sources_iter.next() {
+                if let Some(new_source) = sources.next() {
                     let led_pin_number: u8 = new_source.display_position().into();
                     // Now set the LED associated with the source
                     self.mcp23017_driver
                         .digital_write(led_pin_number, true)
                         .map_err(|_| Error::SetLEDError)?;
-                    Ok(Some(new_source))
+                    Ok(())
                 } else {
-                    Ok(None)
+                    Ok(())
                 }
             } else {
-                Ok(None)
+                Ok(())
             }
         } else {
-            Ok(None)
+            Ok(())
         }
     }
 }

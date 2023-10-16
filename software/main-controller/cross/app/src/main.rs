@@ -72,7 +72,7 @@ use gpio::{Input, Level, Output, Pull};
 use crate::source_select_driver::SourceSelectDriver;
 use i2s_multiplexer::I2SMultiplexer;
 
-use sources::{DisplayPosition, Source, SourceConfig, SourceIterator, Sources};
+use sources::{DisplayPosition, Source, SourceConfig, Sources};
 
 use channel::Channel;
 
@@ -102,8 +102,8 @@ static SHARED_SOURCES: Mutex<CriticalSectionRawMutex, Option<Sources>> = Mutex::
 //     ThreadModeRawMutex,
 //     RefCell<Option<SourceIterator<'static>>>,
 // > = Mutex::new(RefCell::new(None));
-static SHARED_SOURCES_ITERATOR: Mutex<CriticalSectionRawMutex, Option<SourceIterator<'static>>> =
-    Mutex::new(None);
+// static SHARED_SOURCES_ITERATOR: Mutex<CriticalSectionRawMutex, Option<SourceIterator<'static>>> =
+//     Mutex::new(None);
 
 static SHARED_I2S_MULTIPLEXER: Mutex<CriticalSectionRawMutex, Option<MultiplexerDriver>> =
     Mutex::new(None);
@@ -126,7 +126,7 @@ const DEBOUNCE_DURATION: u64 = 100; // Milliseconds
 // use core::panic::PanicInfo;
 
 // #[cfg(not(feature = "panic-probe"))]
-// #[inline(never)] 
+// #[inline(never)]
 // #[panic_handler]
 // fn panic(_info: &PanicInfo) -> ! {
 //     cortex_m::peripheral::SCB::sys_reset();
@@ -205,11 +205,13 @@ async fn main(spawner: Spawner) {
         display_position: DisplayPosition(2),
     });
 
-    let mut sources = sources::Sources::new();
+    //let mut sources = sources::Sources::new();
+    let mut sources = sources::Sources::from_array(&[source_bluetooth, source_wlan, source_cd]);
 
-    sources.insert(source_bluetooth);
-    sources.insert(source_wlan);
-    sources.insert(source_cd);
+    // sources.insert(source_bluetooth);
+
+    // sources.insert(source_wlan);
+    // sources.insert(source_cd);
 
     // Setup the sources as a shared resource so that thay can be used by the sources iterator over many tasks
     // Code is based on this https://apollolabsblog.hashnode.dev/sharing-data-among-tasks-in-rust-embassy-synchronization-primitives
@@ -220,13 +222,13 @@ async fn main(spawner: Spawner) {
     //let inserted_sources = shared_sources.insert(sources);
     shared_sources.insert(sources);
 
-    let mut sources_iterator = shared_sources.as_mut().unwrap().iter();
+    //let mut sources_iterator = shared_sources.as_mut().unwrap().iter();
 
     //let sources_iterator = inserted_sources.iter();
 
     //SHARED_SOURCES_ITERATOR = Mutex::new(Some(sources_iterator));
-    let mut shared_sources_iterator = SHARED_SOURCES_ITERATOR.lock().await;
-    shared_sources_iterator.insert(sources_iterator);
+    // let mut shared_sources_iterator = SHARED_SOURCES_ITERATOR.lock().await;
+    // shared_sources_iterator.insert(sources_iterator);
 
     spawner.spawn(activate_initial_source()).unwrap();
 
@@ -242,9 +244,11 @@ async fn main(spawner: Spawner) {
 async fn activate_initial_source() {
     defmt::info!("Task activate_initial_source");
 
-    let mut sources_iterator = SHARED_SOURCES_ITERATOR.lock().await;
+    //let mut sources_iterator = SHARED_SOURCES_ITERATOR.lock().await;
+    let mut sources = SHARED_SOURCES.lock().await;
 
-    if let Some(initial_source) = sources_iterator.unwrap().peek() {
+    //if let Some(initial_source) = sources_iterator.unwrap().peek() {
+    if let Some(initial_source) = sources.as_mut().unwrap().current_source() {
         // Get the new source channel
         let initial_channel = initial_source.channel();
         // Switch the i2s multiplexer to the correct channel
@@ -304,12 +308,12 @@ async fn activate_initial_source() {
 /// This spawns a task to select the source.
 //#[task(binds = IO_IRQ_BANK0, local = [source_change_interrupt_pin])]
 
-//TODO this task needs to be spawned!!!!!!!
 #[embassy_executor::task]
 async fn source_change(mut source_change_pin: Input<'static, PIN_1>) {
     defmt::info!("Task: monitor_source_change");
 
     loop {
+        defmt::debug!("Wait for falling edge");
         source_change_pin.wait_for_falling_edge().await;
         defmt::info!("Falling edge detected");
 
@@ -321,30 +325,49 @@ async fn source_change(mut source_change_pin: Input<'static, PIN_1>) {
             defmt::info!("Task activate_source");
 
             // Lock all resources - assuming that they have been initialised
-            let select_source_driver = SHARED_SOURCE_SELECTION_DRIVER.lock().await.unwrap();
+            let mut guard = SHARED_SOURCE_SELECTION_DRIVER.lock().await;
+
+            let select_source_driver = guard.as_mut().unwrap();
             //let i2s_multiplexer_driver = SHARED_I2S_MULTIPLEXER.lock().await.unwrap();
             let mut guard = SHARED_I2S_MULTIPLEXER.lock().await;
             let mut i2s_multiplexer_driver = guard.as_mut().unwrap();
 
-            let sources_iterator = SHARED_SOURCES_ITERATOR.lock().await.unwrap();
+            //let sources_iterator = SHARED_SOURCES_ITERATOR.lock().await.unwrap();
+            let mut guard = SHARED_SOURCES.lock().await;
+            let mut sources = guard.as_mut().unwrap();
 
-            if let Some(new_source) = select_source_driver
-                .changed_source(&mut sources_iterator)
-                .unwrap_or_else(|_| {
-                    defmt::panic!("Unable to determine changed source");
-                })
-            {
-                // Get the new source channel
-                let new_channel = new_source.channel();
-                // Switch the i2s multiplexer to the correct channel
-                let channel_number: u8 = new_channel.channel_number();
+            // if let Some(new_source) = select_source_driver
+            //     //.changed_source(&mut sources_iterator)
+            //     .changed_source(&mut sources)
+            //     .unwrap_or_else(|_| {
+            //         defmt::panic!("Unable to determine changed source");
+            //     })
+            // {
+            //     // Get the new source channel
+            //     let new_channel = new_source.channel();
+            //     // Switch the i2s multiplexer to the correct channel
+            //     let channel_number: u8 = new_channel.channel_number();
 
-                defmt::info!("Setting channel {}", channel_number);
+            //     defmt::info!("Setting channel {}", channel_number);
 
-                i2s_multiplexer_driver
-                    .set_channel(channel_number as u8)
-                    .unwrap_or_else(|_| defmt::panic!("Cannot set channel"))
-            };
+            //     i2s_multiplexer_driver
+            //         .set_channel(channel_number as u8)
+            //         .unwrap_or_else(|_| defmt::panic!("Cannot set channel"))
+            // };
+
+            match select_source_driver.changed_source(sources) {
+                Ok(()) => {
+                    let new_channel = sources.current_source().unwrap().channel();
+                    // Switch the i2s multiplexer to the correct channel
+                    let channel_number = new_channel.channel_number();
+                    defmt::info!("Setting channel {}", channel_number);
+
+                    i2s_multiplexer_driver
+                        .set_channel(channel_number as u8)
+                        .unwrap_or_else(|_| defmt::panic!("Cannot set channel"));
+                }
+                Err(_) => defmt::panic!("Unable to determine changed source"),
+            }
         }
     }
 }

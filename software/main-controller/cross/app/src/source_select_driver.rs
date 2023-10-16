@@ -14,7 +14,7 @@ use panic_probe as _;
 
 use sources::{Source, Sources};
 
-// Defines errors being issued by te MCP23017 chip on the source select board
+// Defines errors being issued by the MCP23017 chip on the source select board
 #[derive(Debug, Copy, Clone)]
 pub enum MCP23017Errors {
     // TODO can we use the errors from the mcp23017 driver itself?
@@ -57,6 +57,7 @@ where
         let mut mcp23017_driver = mcp23017::MCP23017::new(i2c, BASE_ADDRESS + address_offset)
             .map_err(|_| Error::MCP23017Error(MCP23017Errors::InitializationError))?;
 
+        // TODO this code is probably redundant
         // Set up the interupt logic on the MCP23017 used on the source display processor.
         // The pin connected to the button GPB0 = 8 in the driver logic. This is set to respond to
         // a value other than HIGH (i.e. the button has pulled the signal LOW).
@@ -104,7 +105,8 @@ where
     /// which case None is returned.  
     /// the newly selected source.
     ///  
-    /// Example   TODO update this comment
+    /// Example   
+    /// TODO As the button is now directly connected can simplify this code a lot!
     /// ```
     ///   match select_source_driver.changed_source(&sources_iterator).unwrap() {
     ///     Some(new_source) => // ... Activate the new source source...
@@ -118,10 +120,6 @@ where
     ///   }
     /// ```
     ///
-    // pub fn changed_source<A: SourceActivation>(
-    //     &mut self,
-    //     current_source: Source<A>,
-    // ) -> Result<Option<Source<A>>, Error> {
     pub fn changed_source<'a>(
         &mut self,
         //sources_iter: &'a mut SourceIterator,
@@ -141,6 +139,7 @@ where
         // button press.
         // IMPORTANT: This will also clear the interrrupt. This is essential
         // for the operation.
+        // TODO refactor this all
         let intr_pin = self
             .mcp23017_driver
             .get_last_interrupt_pin()

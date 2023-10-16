@@ -26,7 +26,6 @@
 #![feature(type_alias_impl_trait)]
 
 // Included modules
-mod error;
 mod source_select_driver;
 
 // Imports
@@ -128,10 +127,9 @@ async fn main(spawner: Spawner) {
     let select_source_driver = SourceSelectDriver::new(i2c, address_offset)
         .unwrap_or_else(|_| defmt::panic!("Cannot initialise select source driver"));
 
-    // Lock the driver mutex and update it with initialised driver
+    // Lock the driver mutex and update it with initialised driver by inserting (using insert()) into the Option
     let mut driver = SHARED_SOURCE_SELECTION_DRIVER.lock().await;
-    driver.insert(select_source_driver); // inserting into the Option
-                                         // SHARED_SOURCE_SELECTION_DRIVER = Mutex::new(Some(select_source_driver));
+    let _ = driver.insert(select_source_driver);
 
     // Set up the I2S multiplexer driver
     let mux_addr0_pin = Output::new(p.PIN_10, Level::Low);
@@ -145,7 +143,7 @@ async fn main(spawner: Spawner) {
 
     // As the I2S Multiplexer driver is used by other tasks, set it up as a shared resource
     let mut driver = SHARED_I2S_MULTIPLEXER.lock().await;
-    driver.insert(i2s_multiplexer);
+    let _ = driver.insert(i2s_multiplexer);
 
     // Set up the source channel mapping
     let source_bluetooth = Source::Bluetooth(SourceConfig {
@@ -164,13 +162,13 @@ async fn main(spawner: Spawner) {
     });
 
     // Note that sources are ordered depending on the display_position
-    let mut sources = sources::Sources::from_array(&[source_bluetooth, source_wlan, source_cd]);
+    let sources = sources::Sources::from_array(&[source_bluetooth, source_wlan, source_cd]);
 
     // Setup the sources as a shared resource so that thay can be used by the sources iterator over many tasks
     // Code is based on this https://apollolabsblog.hashnode.dev/sharing-data-among-tasks-in-rust-embassy-synchronization-primitives
     let mut shared_sources = SHARED_SOURCES.lock().await;
     // Insert into the option
-    shared_sources.insert(sources);
+    let _ = shared_sources.insert(sources);
 
     // Run a task to set up the intial source
     spawner.spawn(activate_initial_source()).unwrap();
@@ -198,7 +196,7 @@ async fn activate_initial_source() {
         // Assuming that the mutliplexer driver is initialized
         // Cannot chain the following two statements together due to lifetime issues
         let mut guard = SHARED_I2S_MULTIPLEXER.lock().await;
-        let mut multiplexer = guard.as_mut().unwrap();
+        let multiplexer = guard.as_mut().unwrap();
         //let mut multiplexer = SHARED_I2S_MULTIPLEXER.lock().await.unwrap();
 
         let channel_number: u8 = initial_channel.channel_number();
@@ -220,9 +218,7 @@ async fn source_change(mut source_change_pin: Input<'static, PIN_1>) {
     defmt::info!("Task: monitor_source_change");
 
     loop {
-        defmt::debug!("Wait for falling edge");
         source_change_pin.wait_for_falling_edge().await;
-        defmt::info!("Falling edge detected");
 
         // Debounce
         Timer::after(Duration::from_millis(DEBOUNCE_DURATION)).await;
@@ -237,10 +233,10 @@ async fn source_change(mut source_change_pin: Input<'static, PIN_1>) {
             let select_source_driver = guard.as_mut().unwrap();
 
             let mut guard = SHARED_I2S_MULTIPLEXER.lock().await;
-            let mut i2s_multiplexer_driver = guard.as_mut().unwrap();
+            let i2s_multiplexer_driver = guard.as_mut().unwrap();
 
             let mut guard = SHARED_SOURCES.lock().await;
-            let mut sources = guard.as_mut().unwrap();
+            let sources = guard.as_mut().unwrap();
 
             match select_source_driver.changed_source(sources) {
                 Ok(()) => {

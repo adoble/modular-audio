@@ -12,7 +12,7 @@ use mcp23017::{Polarity, MCP23017};
 use defmt as _;
 use panic_probe as _;
 
-use sources::{Source, Sources};
+use sources::Sources;
 
 // Defines errors being issued by the MCP23017 chip on the source select board
 #[derive(Debug, Copy, Clone)]

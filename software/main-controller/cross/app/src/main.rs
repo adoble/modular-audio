@@ -204,7 +204,7 @@ async fn activate_initial_source() {
         defmt::info!("Setting channel {}", channel_number);
 
         multiplexer
-            .set_channel(channel_number as u8)
+            .set_channel(channel_number)
             .unwrap_or_else(|_| defmt::panic!("Cannot set channel"))
     } else {
         defmt::panic!("No initial channel set");

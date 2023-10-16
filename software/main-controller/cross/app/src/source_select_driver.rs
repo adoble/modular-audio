@@ -18,22 +18,22 @@ use sources::Sources;
 #[derive(Debug, Copy, Clone)]
 pub enum MCP23017Errors {
     // TODO can we use the errors from the mcp23017 driver itself?
-    InitializationError,
-    PinModeInputError(u8),
-    InterruptSetupError,
-    InterruptPinSetupError(u8),
-    PinModeOutputError(u8),
-    InterruptPinError,
-    DigitalReadError(u8), // Contains the pin number
+    Initialization,
+    PinModeInput(u8),
+    InterruptSetup,
+    InterruptPinSetup(u8),
+    PinModeOutput(u8),
+    InterruptPin,
+    DigitalRead(u8), // Contains the pin number
 }
 /// Defines errors for the driver
 #[derive(Debug, Copy, Clone)]
 pub enum Error {
-    MCP23017Error(MCP23017Errors),
-    ClearLEDError(u8),
-    SetLEDError,
+    MCP23017(MCP23017Errors),
+    ClearLED(u8),
+    SetLED,
     /// Interrupt pin not found
-    InterruptPinError,
+    InterruptPin,
 }
 
 const BASE_ADDRESS: u8 = 0x20;
@@ -55,7 +55,7 @@ where
 {
     pub fn new(i2c: I2C, address_offset: u8) -> Result<SourceSelectDriver<I2C>, Error> {
         let mut mcp23017_driver = mcp23017::MCP23017::new(i2c, BASE_ADDRESS + address_offset)
-            .map_err(|_| Error::MCP23017Error(MCP23017Errors::InitializationError))?;
+            .map_err(|_| Error::MCP23017(MCP23017Errors::Initialization))?;
 
         // TODO this code is probably redundant
         // Set up the interupt logic on the MCP23017 used on the source display processor.
@@ -63,31 +63,31 @@ where
         // a value other than HIGH (i.e. the button has pulled the signal LOW).
         mcp23017_driver
             .pin_mode(8, mcp23017::PinMode::INPUT)
-            .map_err(|_| Error::MCP23017Error(MCP23017Errors::PinModeInputError(8)))?;
+            .map_err(|_| Error::MCP23017(MCP23017Errors::PinModeInput(8)))?;
         let mirroring = false;
         let open_drain = false;
         mcp23017_driver
             .setup_interrupts(mirroring, open_drain, Polarity::LOW) // Active low interrupt
-            .map_err(|_| Error::MCP23017Error(MCP23017Errors::InterruptSetupError))?;
+            .map_err(|_| Error::MCP23017(MCP23017Errors::InterruptSetup))?;
         mcp23017_driver
             .setup_interrupt_pin(8, mcp23017::InterruptMode::CHANGE) // Using CHANGE as this gives a pulse when the pin changes state
-            .map_err(|_| Error::MCP23017Error(MCP23017Errors::InterruptPinSetupError(8)))?;
+            .map_err(|_| Error::MCP23017(MCP23017Errors::InterruptPinSetup(8)))?;
 
         // The pins driving the leds are set to output mode and all but the
         // first one cleared.
         for i in 0..NUMBER_CHANNELS_SUPPORTED {
             mcp23017_driver
                 .pin_mode(i, mcp23017::PinMode::OUTPUT)
-                .map_err(|_| Error::MCP23017Error(MCP23017Errors::PinModeOutputError(i)))?;
+                .map_err(|_| Error::MCP23017(MCP23017Errors::PinModeOutput(i)))?;
 
             if i == 0 {
                 mcp23017_driver
                     .digital_write(i, true)
-                    .map_err(|_| Error::ClearLEDError(i))?;
+                    .map_err(|_| Error::ClearLED(i))?;
             } else {
                 mcp23017_driver
                     .digital_write(i, false)
-                    .map_err(|_| Error::ClearLEDError(i))?;
+                    .map_err(|_| Error::ClearLED(i))?;
             }
         }
 
@@ -120,7 +120,7 @@ where
     ///   }
     /// ```
     ///
-    pub fn changed_source<'a>(
+    pub fn changed_source(
         &mut self,
         //sources_iter: &'a mut SourceIterator,
         sources: &mut Sources,
@@ -143,12 +143,12 @@ where
         let intr_pin = self
             .mcp23017_driver
             .get_last_interrupt_pin()
-            .map_err(|_| Error::MCP23017Error(MCP23017Errors::InterruptPinError))?;
+            .map_err(|_| Error::MCP23017(MCP23017Errors::InterruptPin))?;
 
         let state = self
             .mcp23017_driver
             .digital_read(intr_pin)
-            .map_err(|_| Error::MCP23017Error(MCP23017Errors::DigitalReadError(intr_pin)))?;
+            .map_err(|_| Error::MCP23017(MCP23017Errors::DigitalRead(intr_pin)))?;
 
         // Is the button causing the interrupt being pressed or released.
         // if the button is being released then do nothing
@@ -165,7 +165,7 @@ where
                 // Clear the current source led
                 self.mcp23017_driver
                     .digital_write(led_pin_number, false)
-                    .map_err(|_| Error::ClearLEDError(led_pin_number))?;
+                    .map_err(|_| Error::ClearLED(led_pin_number))?;
 
                 // Update the source
                 if let Some(new_source) = sources.next() {
@@ -173,7 +173,7 @@ where
                     // Now set the LED associated with the source
                     self.mcp23017_driver
                         .digital_write(led_pin_number, true)
-                        .map_err(|_| Error::SetLEDError)?;
+                        .map_err(|_| Error::SetLED)?;
                     Ok(())
                 } else {
                     Ok(())

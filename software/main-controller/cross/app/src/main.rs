@@ -11,7 +11,6 @@
 //!
 
 // TODOs
-// - Do not need interrupt processing on the MCP23017. Remove this code.
 // - Maybe need to use shared-bus, see https://docs.rs/shared-bus/latest/shared_bus/ and the referenced blog post.
 //
 // DEVELOPMENT NOTE:

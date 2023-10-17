@@ -7,7 +7,7 @@ use hal::blocking::i2c::{Write, WriteRead};
 extern crate alloc;
 
 // The driver for the MCP23017 chip used on the board
-use mcp23017::{Polarity, MCP23017};
+use mcp23017::MCP23017;
 
 use defmt as _;
 use panic_probe as _;
@@ -20,8 +20,6 @@ pub enum MCP23017Errors {
     // TODO can we use the errors from the mcp23017 driver itself?
     Initialization,
     PinModeInput(u8),
-    InterruptSetup,
-    InterruptPinSetup(u8),
     PinModeOutput(u8),
     InterruptPin,
     DigitalRead(u8), // Contains the pin number
@@ -56,22 +54,6 @@ where
     pub fn new(i2c: I2C, address_offset: u8) -> Result<SourceSelectDriver<I2C>, Error> {
         let mut mcp23017_driver = mcp23017::MCP23017::new(i2c, BASE_ADDRESS + address_offset)
             .map_err(|_| Error::MCP23017(MCP23017Errors::Initialization))?;
-
-        // TODO this code is probably redundant
-        // Set up the interupt logic on the MCP23017 used on the source display processor.
-        // The pin connected to the button GPB0 = 8 in the driver logic. This is set to respond to
-        // a value other than HIGH (i.e. the button has pulled the signal LOW).
-        mcp23017_driver
-            .pin_mode(8, mcp23017::PinMode::INPUT)
-            .map_err(|_| Error::MCP23017(MCP23017Errors::PinModeInput(8)))?;
-        let mirroring = false;
-        let open_drain = false;
-        mcp23017_driver
-            .setup_interrupts(mirroring, open_drain, Polarity::LOW) // Active low interrupt
-            .map_err(|_| Error::MCP23017(MCP23017Errors::InterruptSetup))?;
-        mcp23017_driver
-            .setup_interrupt_pin(8, mcp23017::InterruptMode::CHANGE) // Using CHANGE as this gives a pulse when the pin changes state
-            .map_err(|_| Error::MCP23017(MCP23017Errors::InterruptPinSetup(8)))?;
 
         // The pins driving the leds are set to output mode and all but the
         // first one cleared.

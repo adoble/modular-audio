@@ -11,13 +11,11 @@
 //!
 
 // TODOs
-// - The mcp23017 is not correctly initialised and can hang in that the "interrupt" stays stuck low. This may have been solved in that
-//   the chips interrupt pins are not used. The interrupt directly form the pull-down button.
-// - Using https://github.com/lulf/watchful/blob/main/firmware/app/src/main.rs as an example do two things:
-//        - Use StaticCell
-//        - Only put I2C driver in as mutex. Other drivers, pass in as references to the corresponding functions.
-//          However, my first approach would be to continue as is (mutexes on all the drivers) and then see if we can simplify
+// - Do not need interrupt processing on the MCP23017. Remove this code.
 // - Maybe need to use shared-bus, see https://docs.rs/shared-bus/latest/shared_bus/ and the referenced blog post.
+//
+// DEVELOPMENT NOTE:
+// - Using https://github.com/lulf/watchful/blob/main/firmware/app/src/main.rs as an example do two things:
 //
 
 #![no_std]

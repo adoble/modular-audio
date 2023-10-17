@@ -10,10 +10,12 @@ An class D amplifier module that can select other digital sources (I2S, S/PDIF).
 
 ### Functional Components
 
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart LR
+<!-- Removed the ELK renderer as causing problems - see https://github.com/mermaid-js/mermaid-cli/issues/594 -->
+<!-- Old code was (first line of the mermaid description): -->
+<!-- %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%% -->
 
+```mermaid
+flowchart LR
 
 main_ctrl["Main Controller"] -- Parallel Bus --- i2sm[I2S-Multiplexer];
 wifi --- antenna1((Antenna <br> 1));

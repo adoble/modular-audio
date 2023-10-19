@@ -194,7 +194,6 @@ async fn activate_initial_source() {
         // Cannot chain the following two statements together due to lifetime issues
         let mut guard = SHARED_I2S_MULTIPLEXER.lock().await;
         let multiplexer = guard.as_mut().unwrap();
-        //let mut multiplexer = SHARED_I2S_MULTIPLEXER.lock().await.unwrap();
 
         let channel_number: u8 = initial_channel.channel_number();
 
@@ -208,8 +207,8 @@ async fn activate_initial_source() {
     }
 }
 
-/// Monitor the source_changed pin is pulsed low from the
-/// select source board.
+/// Monitor when the source_changed pin is pulsed low from the
+/// select source board and then change the source
 #[embassy_executor::task]
 async fn source_change(mut source_change_pin: Input<'static, PIN_1>) {
     defmt::info!("Task: monitor_source_change");
@@ -237,19 +236,32 @@ async fn source_change(mut source_change_pin: Input<'static, PIN_1>) {
 
             match select_source_driver.change_source(sources) {
                 Ok(()) => {
-                    let new_channel = sources.current_source().unwrap().channel();
-                    // Switch the i2s multiplexer to the correct channel
-                    let channel_number = new_channel.channel_number();
-                    defmt::info!("Setting channel {}", channel_number);
+                    let source = sources.current_source().unwrap();
+                    activate(source, i2s_multiplexer_driver);
+                    // let new_channel = sources.current_source().unwrap().channel();
+                    // // Switch the i2s multiplexer to the correct channel
+                    // let channel_number = new_channel.channel_number();
+                    // defmt::info!("Setting channel {}", channel_number);
 
-                    i2s_multiplexer_driver
-                        .set_channel(channel_number as u8)
-                        .unwrap_or_else(|_| defmt::panic!("Cannot set channel"));
+                    // i2s_multiplexer_driver
+                    //     .set_channel(channel_number as u8)
+                    //     .unwrap_or_else(|_| defmt::panic!("Cannot set channel"));
                 }
                 Err(_) => defmt::panic!("Unable to determine changed source"),
             }
         }
     }
+}
+
+fn activate(source: Source, i2s_multiplexer_driver: &mut MultiplexerDriver) {
+    let channel = source.channel();
+    // Switch the i2s multiplexer to the correct channel
+    let channel_number = channel.channel_number();
+    defmt::info!("Setting channel {}", channel_number);
+
+    i2s_multiplexer_driver
+        .set_channel(channel_number as u8)
+        .unwrap_or_else(|_| defmt::panic!("Cannot set channel"));
 }
 
 // End of file

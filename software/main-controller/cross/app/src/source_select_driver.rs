@@ -79,7 +79,10 @@ where
         })
     }
 
-    /// TODO
+    /// Changes the source and also updates the source indicator.
+    ///
+    /// The changed source can be be retrived from `Sources` using the
+    /// function `current_source()`.
     ///
     pub fn change_source(
         &mut self,

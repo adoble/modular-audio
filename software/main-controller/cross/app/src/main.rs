@@ -235,7 +235,7 @@ async fn source_change(mut source_change_pin: Input<'static, PIN_1>) {
             let mut guard = SHARED_SOURCES.lock().await;
             let sources = guard.as_mut().unwrap();
 
-            match select_source_driver.changed_source(sources) {
+            match select_source_driver.change_source(sources) {
                 Ok(()) => {
                     let new_channel = sources.current_source().unwrap().channel();
                     // Switch the i2s multiplexer to the correct channel

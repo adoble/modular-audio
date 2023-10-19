@@ -79,87 +79,30 @@ where
         })
     }
 
-    /// This should always be called when the source selector has delivered a interupt SUGGESTING that
-    /// the source has been changed by the used. If the button has been pressed then this actually means
-    /// that the user has changed the source. In this case thre function returns with the new source.
+    /// TODO
     ///
-    /// If the button is released then an interrupt is also issued, but no source changehas happeded. In
-    /// which case None is returned.  
-    /// the newly selected source.
-    ///  
-    /// Example   
-    /// TODO As the button is now directly connected can simplify this code a lot!
-    /// ```
-    ///   match select_source_driver.changed_source(&sources_iterator).unwrap() {
-    ///     Some(new_source) => // ... Activate the new source source...
-    ///     None => ();   
-    ///   }
-    /// ```
-    /// Alternatively:
-    /// ```
-    ///   if let Some(new_source) = select_source_driver.changed_source(&sources_iterator).unwrap() {
-    ///     // ... Activate the new source ...
-    ///   }
-    /// ```
-    ///
-    pub fn changed_source(
+    pub fn change_source(
         &mut self,
         //sources_iter: &'a mut SourceIterator,
         sources: &mut Sources,
     ) -> Result<(), Error> {
-        defmt::debug!("Entering changed_source");
+        // TODO try an remove the nested structure here
+        defmt::info!("Changing source");
+        if let Some(current_source) = sources.current_source() {
+            let led_pin_number: u8 = current_source.display_position().into();
+            // Clear the current source led
+            self.mcp23017_driver
+                .digital_write(led_pin_number, false)
+                .map_err(|_| Error::ClearLED(led_pin_number))?;
 
-        // This code works. Maybe this shows that we can have an external driver encapsulated with another, higher level,
-        // function driver and only the high level driver needs to be locked!!! This is a TODO
-        // self.mcp23017_driver
-        //     .digital_write(2, true)
-        //     .unwrap_or_else(|_| defmt::panic!("Error Here"));
-
-        // Now check the state of the pin causing the interrupt. If the button
-        // is being pressed then this will be False. If the button is being
-        // released then this will be True. This is debounces the source select
-        // button press.
-        // IMPORTANT: This will also clear the interrrupt. This is essential
-        // for the operation.
-        // TODO refactor this all
-        let intr_pin = self
-            .mcp23017_driver
-            .get_last_interrupt_pin()
-            .map_err(|_| Error::MCP23017(MCP23017Errors::InterruptPin))?;
-
-        let state = self
-            .mcp23017_driver
-            .digital_read(intr_pin)
-            .map_err(|_| Error::MCP23017(MCP23017Errors::DigitalRead(intr_pin)))?;
-
-        // Is the button causing the interrupt being pressed or released.
-        // if the button is being released then do nothing
-        let pressed = !state;
-
-        if pressed {
-            // Get the pin number of the current source. The circuit is such that
-            // the pin number corresponds to display position of the source in
-            // sources.
-            // TODO try an remove the nested structure here
-            defmt::debug!("Button pressed");
-            if let Some(current_source) = sources.current_source() {
-                let led_pin_number: u8 = current_source.display_position().into();
-                // Clear the current source led
+            // Update the source
+            if let Some(new_source) = sources.next() {
+                let led_pin_number: u8 = new_source.display_position().into();
+                // Now set the LED associated with the source
                 self.mcp23017_driver
-                    .digital_write(led_pin_number, false)
-                    .map_err(|_| Error::ClearLED(led_pin_number))?;
-
-                // Update the source
-                if let Some(new_source) = sources.next() {
-                    let led_pin_number: u8 = new_source.display_position().into();
-                    // Now set the LED associated with the source
-                    self.mcp23017_driver
-                        .digital_write(led_pin_number, true)
-                        .map_err(|_| Error::SetLED)?;
-                    Ok(())
-                } else {
-                    Ok(())
-                }
+                    .digital_write(led_pin_number, true)
+                    .map_err(|_| Error::SetLED)?;
+                Ok(())
             } else {
                 Ok(())
             }

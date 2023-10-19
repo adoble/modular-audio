@@ -237,15 +237,16 @@ async fn source_change(mut source_change_pin: Input<'static, PIN_1>) {
             match select_source_driver.change_source(sources) {
                 Ok(()) => {
                     let source = sources.current_source().unwrap();
-                    activate(source, i2s_multiplexer_driver);
-                    // let new_channel = sources.current_source().unwrap().channel();
-                    // // Switch the i2s multiplexer to the correct channel
-                    // let channel_number = new_channel.channel_number();
-                    // defmt::info!("Setting channel {}", channel_number);
+                    match source {
+                        Source::Bluetooth(config) => {
+                            activate_bluetooth(config, i2s_multiplexer_driver)
+                        }
+                        Source::WirelessLan(config) => {
+                            activate_wireless_lan(config, i2s_multiplexer_driver)
+                        }
 
-                    // i2s_multiplexer_driver
-                    //     .set_channel(channel_number as u8)
-                    //     .unwrap_or_else(|_| defmt::panic!("Cannot set channel"));
+                        _ => defmt::error!("Source not implemented!"),
+                    }
                 }
                 Err(_) => defmt::panic!("Unable to determine changed source"),
             }
@@ -253,10 +254,24 @@ async fn source_change(mut source_change_pin: Input<'static, PIN_1>) {
     }
 }
 
-fn activate(source: Source, i2s_multiplexer_driver: &mut MultiplexerDriver) {
-    let channel = source.channel();
+fn activate_bluetooth(config: SourceConfig, i2s_multiplexer_driver: &mut MultiplexerDriver) {
+    // TODO  set the up2stream board
+
     // Switch the i2s multiplexer to the correct channel
-    let channel_number = channel.channel_number();
+    let channel_number = config.channel.channel_number();
+    defmt::info!("Setting channel {}", channel_number);
+
+    i2s_multiplexer_driver
+        .set_channel(channel_number as u8)
+        .unwrap_or_else(|_| defmt::panic!("Cannot set channel"));
+}
+
+fn activate_wireless_lan(config: SourceConfig, i2s_multiplexer_driver: &mut MultiplexerDriver) {
+    // TODO  set the up2stream board
+    defmt::info!("TODO  set up wlan on up2stream board");
+
+    // Switch the i2s multiplexer to the correct channel
+    let channel_number = config.channel.channel_number();
     defmt::info!("Setting channel {}", channel_number);
 
     i2s_multiplexer_driver

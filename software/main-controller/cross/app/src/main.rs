@@ -153,13 +153,19 @@ async fn main(spawner: Spawner) {
         display_position: DisplayPosition(1),
     });
 
-    let source_cd = Source::Cd(SourceConfig {
-        channel: Channel(4),
+    let source_aux = Source::Aux(SourceConfig {
+        channel: Channel(2),
         display_position: DisplayPosition(2),
     });
 
+    let source_cd = Source::Cd(SourceConfig {
+        channel: Channel(4),
+        display_position: DisplayPosition(3),
+    });
+
     // Note that sources are ordered depending on the display_position
-    let sources = sources::Sources::from_array(&[source_bluetooth, source_wlan, source_cd]);
+    let sources =
+        sources::Sources::from_array(&[source_bluetooth, source_wlan, source_aux, source_cd]);
 
     // Setup the sources as a shared resource so that thay can be used by the sources iterator over many tasks
     // Code is based on this https://apollolabsblog.hashnode.dev/sharing-data-among-tasks-in-rust-embassy-synchronization-primitives
@@ -244,6 +250,7 @@ async fn source_change(mut source_change_pin: Input<'static, PIN_1>) {
                         Source::WirelessLan(config) => {
                             activate_wireless_lan(config, i2s_multiplexer_driver)
                         }
+                        Source::Aux(config) => activate_aux(config, i2s_multiplexer_driver),
 
                         _ => defmt::error!("Source not implemented!"),
                     }
@@ -269,6 +276,19 @@ fn activate_bluetooth(config: SourceConfig, i2s_multiplexer_driver: &mut Multipl
 fn activate_wireless_lan(config: SourceConfig, i2s_multiplexer_driver: &mut MultiplexerDriver) {
     // TODO  set the up2stream board
     defmt::info!("TODO  set up wlan on up2stream board");
+
+    // Switch the i2s multiplexer to the correct channel
+    let channel_number = config.channel.channel_number();
+    defmt::info!("Setting channel {}", channel_number);
+
+    i2s_multiplexer_driver
+        .set_channel(channel_number as u8)
+        .unwrap_or_else(|_| defmt::panic!("Cannot set channel"));
+}
+
+fn activate_aux(config: SourceConfig, i2s_multiplexer_driver: &mut MultiplexerDriver) {
+    // TODO  set the up2stream board
+    defmt::info!("TODO  set up aux on up2stream board");
 
     // Switch the i2s multiplexer to the correct channel
     let channel_number = config.channel.channel_number();

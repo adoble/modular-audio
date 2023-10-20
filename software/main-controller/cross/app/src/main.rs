@@ -335,7 +335,7 @@ fn activate_bluetooth(
     defmt::info!("Setting channel {}", channel_number);
 
     i2s_multiplexer_driver
-        .set_channel(channel_number as u8)
+        .set_channel(channel_number)
         .unwrap_or_else(|_| defmt::panic!("Cannot set channel"));
 }
 
@@ -355,7 +355,7 @@ fn activate_wireless_lan(
     defmt::info!("Setting channel {}", channel_number);
 
     i2s_multiplexer_driver
-        .set_channel(channel_number as u8)
+        .set_channel(channel_number)
         .unwrap_or_else(|_| defmt::panic!("Cannot set channel"));
 }
 
@@ -375,7 +375,7 @@ fn activate_aux(
     defmt::info!("Setting channel {}", channel_number);
 
     i2s_multiplexer_driver
-        .set_channel(channel_number as u8)
+        .set_channel(channel_number)
         .unwrap_or_else(|_| defmt::panic!("Cannot set channel"));
 }
 

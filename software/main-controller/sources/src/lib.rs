@@ -1,8 +1,5 @@
 #![cfg_attr(not(test), no_std)]
 
-// TODO:
-// - remove the seperate sources iterator. This is giving problems with the static scope of the sources.
-
 extern crate alloc;
 
 //use core::iter::Cycle;

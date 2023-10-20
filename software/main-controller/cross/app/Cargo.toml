@@ -59,8 +59,12 @@ i2s-multiplexer = { path = "../i2s-multiplexer" }
 sources = { path = "../../sources" }
 channel = { path = "../../channel" }
 
+# The external up2stream-uart driver
+up2stream-uart = { version = "0.2.0", git = "https://github.com/adoble/up2stream-uart" }
+#up2stream-uart = { version = "0.2.0", path = "../../../../../rust-projects/up2stream-uart" }
 
-# The embassy crates. Including a lot, but need to check later (using cargo +nightly udeps) 
+
+# The embassy crates. Including a lot, but need to check later (using cargo +nightly udeps)  
 # which ones need to be removed (TODO)
 embassy-embedded-hal = { version = "0.1.0", git = "https://github.com/embassy-rs/embassy", features = [
     "defmt",

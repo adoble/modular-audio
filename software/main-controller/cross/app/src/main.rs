@@ -49,11 +49,13 @@ use embassy_sync::mutex::Mutex; // Is this the right one? TODO - Using an async 
 
 use embassy_rp::i2c::{self, Blocking, Config, I2c};
 use embassy_rp::peripherals::I2C0;
+use embassy_rp::uart;
 use gpio::{Input, Level, Output, Pull};
 
 // Controller specific crates
 use crate::source_select_driver::SourceSelectDriver;
 use i2s_multiplexer::I2SMultiplexer;
+use up2stream_uart::{Source as Up2StreamSource, Up2Stream};
 
 // Data structures used
 use channel::Channel;
@@ -62,14 +64,20 @@ use sources::{DisplayPosition, Source, SourceConfig, Sources};
 // The driver types are omplicated and need to be explictly set for the shared variable.
 // To keep this more more manageble a number of types are defined here.
 
-// Pin Types
+// Pin Types for I2S multiplexer
 type MuxAddr0 = Output<'static, PIN_10>;
 type MuxAddr1 = Output<'static, PIN_11>;
 type MuxAddr2 = Output<'static, PIN_12>;
 type MuxEnable = Output<'static, PIN_13>;
 
+// Pin types for UART
+//type UartTx = Output<'static, PIN_8>;
+//type UartRx = Output<'static, PIN_9>;
+
 // Driver types
 type MultiplexerDriver = I2SMultiplexer<MuxAddr0, MuxAddr1, MuxAddr2, MuxEnable>;
+type Up2StreamDriver =
+    Up2Stream<uart::Uart<'static, embassy_rp::peripherals::UART1, uart::Blocking>>;
 
 // I2C type
 type I2CBus = I2c<'static, I2C0, Blocking>;
@@ -83,6 +91,7 @@ static SHARED_SOURCE_SELECTION_DRIVER: Mutex<
     CriticalSectionRawMutex,
     Option<SourceSelectDriver<I2CBus>>,
 > = Mutex::new(None);
+static SHARED_UP2STREAM: Mutex<CriticalSectionRawMutex, Option<Up2StreamDriver>> = Mutex::new(None);
 
 // TODO change this into a proper Duration
 const DEBOUNCE_DURATION: u64 = 100; // Milliseconds
@@ -113,11 +122,15 @@ async fn main(spawner: Spawner) {
 
     // The MCP23017 mulitplexer chip used to driver the source lights can use a 400 KHz clock for I2C.
     // However, embassy (currently) only allows the default to 100 KHz (as seen from code).
-    // Initail test show that the  slower value still works.
+    // Initial test show that the  slower value still works.
     let i2c_config = Config::default(); // Defaults to 100_000 Hz (as seen from code). Hoping that a slower value will still work
 
     // Setup the I2C peripheral
     let i2c = i2c::I2c::new_blocking(p.I2C0, scl_pin, sda_pin, i2c_config);
+
+    // Set up the  UART
+    let uart_config = uart::Config::default();
+    let uart = uart::Uart::new_blocking(p.UART1, p.PIN_8, p.PIN_9, uart_config);
 
     // Set up the source select hardware module as a shared resource
     let address_offset: u8 = 0x01;
@@ -141,6 +154,11 @@ async fn main(spawner: Spawner) {
     // As the I2S Multiplexer driver is used by other tasks, set it up as a shared resource
     let mut driver = SHARED_I2S_MULTIPLEXER.lock().await;
     let _ = driver.insert(i2s_multiplexer);
+
+    // Set up the up2stream driver as a shared resource
+    let up2stream_driver = Up2Stream::new(uart);
+    let mut driver = SHARED_UP2STREAM.lock().await;
+    let _ = driver.insert(up2stream_driver);
 
     // Set up the source channel mapping
     let source_bluetooth = Source::Bluetooth(SourceConfig {
@@ -229,7 +247,7 @@ async fn source_change(mut source_change_pin: Input<'static, PIN_1>) {
             // Source change pin is still low so change source
             defmt::info!("Task activate_source");
 
-            // Lock all resources - assuming that they have been initialised. Note: cannot chain the lock await and the
+            // Lock all common resources for each source - assuming that they have been initialised. Note: cannot chain the lock await and the
             // get value together due to lifcycle issues.
             let mut guard = SHARED_SOURCE_SELECTION_DRIVER.lock().await;
             let select_source_driver = guard.as_mut().unwrap();
@@ -245,12 +263,24 @@ async fn source_change(mut source_change_pin: Input<'static, PIN_1>) {
                     let source = sources.current_source().unwrap();
                     match source {
                         Source::Bluetooth(config) => {
-                            activate_bluetooth(config, i2s_multiplexer_driver)
+                            // Lock and get the up2stream-uart driver
+                            let mut guard = SHARED_UP2STREAM.lock().await;
+                            let up2stream_driver = guard.as_mut().unwrap();
+
+                            activate_bluetooth(config, i2s_multiplexer_driver, up2stream_driver);
                         }
                         Source::WirelessLan(config) => {
-                            activate_wireless_lan(config, i2s_multiplexer_driver)
+                            let mut guard = SHARED_UP2STREAM.lock().await;
+                            let up2stream_driver = guard.as_mut().unwrap();
+
+                            activate_wireless_lan(config, i2s_multiplexer_driver, up2stream_driver);
                         }
-                        Source::Aux(config) => activate_aux(config, i2s_multiplexer_driver),
+                        Source::Aux(config) => {
+                            let mut guard = SHARED_UP2STREAM.lock().await;
+                            let up2stream_driver = guard.as_mut().unwrap();
+
+                            activate_aux(config, i2s_multiplexer_driver, up2stream_driver)
+                        }
 
                         _ => defmt::error!("Source not implemented!"),
                     }
@@ -289,8 +319,16 @@ async fn source_change(mut source_change_pin: Input<'static, PIN_1>) {
 // Even without the traits, putting all the devices in a Device struct could simplify things a bit.
 // Maybe think about lazy_static! https://crates.io/crates/lazy_static
 
-fn activate_bluetooth(config: SourceConfig, i2s_multiplexer_driver: &mut MultiplexerDriver) {
-    // TODO  set the up2stream board
+fn activate_bluetooth(
+    config: SourceConfig,
+    i2s_multiplexer_driver: &mut MultiplexerDriver,
+    up2stream_driver: &mut Up2StreamDriver,
+) {
+    defmt::info!("Setting source bluetooth");
+    // Switch the up2steam board to the correct source
+    up2stream_driver
+        .select_input_source(Up2StreamSource::Bluetooth)
+        .unwrap(); //TODO error handling!
 
     // Switch the i2s multiplexer to the correct channel
     let channel_number = config.channel.channel_number();
@@ -301,9 +339,16 @@ fn activate_bluetooth(config: SourceConfig, i2s_multiplexer_driver: &mut Multipl
         .unwrap_or_else(|_| defmt::panic!("Cannot set channel"));
 }
 
-fn activate_wireless_lan(config: SourceConfig, i2s_multiplexer_driver: &mut MultiplexerDriver) {
-    // TODO  set the up2stream board
-    defmt::info!("TODO  set up wlan on up2stream board");
+fn activate_wireless_lan(
+    config: SourceConfig,
+    i2s_multiplexer_driver: &mut MultiplexerDriver,
+    up2stream_driver: &mut Up2StreamDriver,
+) {
+    defmt::info!("Setting source wirless_lan");
+
+    up2stream_driver
+        .select_input_source(Up2StreamSource::Net)
+        .unwrap(); //TODO error handling!
 
     // Switch the i2s multiplexer to the correct channel
     let channel_number = config.channel.channel_number();
@@ -314,9 +359,16 @@ fn activate_wireless_lan(config: SourceConfig, i2s_multiplexer_driver: &mut Mult
         .unwrap_or_else(|_| defmt::panic!("Cannot set channel"));
 }
 
-fn activate_aux(config: SourceConfig, i2s_multiplexer_driver: &mut MultiplexerDriver) {
-    // TODO  set the up2stream board
-    defmt::info!("TODO  set up aux on up2stream board");
+fn activate_aux(
+    config: SourceConfig,
+    i2s_multiplexer_driver: &mut MultiplexerDriver,
+    up2stream_driver: &mut Up2StreamDriver,
+) {
+    defmt::info!("Setting source aux/line-in");
+
+    up2stream_driver
+        .select_input_source(Up2StreamSource::LineIn)
+        .unwrap(); //TODO error handling!
 
     // Switch the i2s multiplexer to the correct channel
     let channel_number = config.channel.channel_number();

@@ -261,6 +261,34 @@ async fn source_change(mut source_change_pin: Input<'static, PIN_1>) {
     }
 }
 
+// TODO & IDEA. Each of the activate* functions needs to have as parameters a seperate set of device drivers.
+// Maybe  I can unifiy this by having all the external devices in a global static struct "Devices"(which also
+// handles the initialization and "taking" of the devices). This is then analog to the HAL Peripharals struct.
+// Each activate* function then takes a reference to this global static struct and coudl be played in a trait, e.g:
+//   trait Activation {
+//     fn activate(config: SourceConfig, devices: &Devices) { ... }
+//   }
+//
+// and each  Source would be a struct using the trait Source
+//    trait Source {
+//       fn new (config: SourceConfig);
+//    }
+//    impl Activate for Source {
+//       fn activate( ...) {}
+//    }
+//    struct SourceBluetooth {
+//        config: SourceConfig,
+//    }
+// impl Source for SourceBluetooth {
+//     fn new(config: SourceConfig) {...}
+// }
+// impl Activation for SourceBluetooth {
+//     fn activate(&self, ... , devices: &mut Devices) {}
+// }
+//
+// Even without the traits, putting all the devices in a Device struct could simplify things a bit.
+// Maybe think about lazy_static! https://crates.io/crates/lazy_static
+
 fn activate_bluetooth(config: SourceConfig, i2s_multiplexer_driver: &mut MultiplexerDriver) {
     // TODO  set the up2stream board
 
